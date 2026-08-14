@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+
+    <meta
+        name="description"
+        content="Minecraft Redstone Factory - Build machines, automate production, earn coins and upgrade your factory."
+    >
+
+    <title>Minecraft Redstone Factory</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- =====================================================
+         BACKGROUND
+    ====================================================== -->
+
+    <div id="background">
+        <div class="background-grid"></div>
+        <div class="background-glow red-glow"></div>
+        <div class="background-glow green-glow"></div>
+    </div>
+
+
+    <!-- =====================================================
+         MAIN MENU
+    ====================================================== -->
+
+    <main id="mainMenu" class="screen active-screen">
+
+        <section class="main-menu-card">
+
+            <div class="logo-gear">
+                ⚙
+            </div>
+
+            <p class="academy-title">
+                Minecraft Developer Academy • Level 9
+            </p>
+
+            <h1>
+                Minecraft
+                <span>Redstone Factory</span>
+            </h1>
+
+            <p class="menu-subtitle">
+                Mine • Automate • Craft • Profit
+            </p>
+
+
+            <div class="main-buttons">
+
+                <button
+                    id="playBtn"
+                    class="main-btn green-btn"
+                >
+                    ▶ New Factory
+                </button>
+
+                <button
+                    id="continueBtn"
+                    class="main-btn"
+                >
+                    ↻ Continue
+                </button>
+
+                <button
+                    id="challengeBtn"
+                    class="main-btn challenge-btn"
+                >
+                    🏆 Factory Challenge
+                </button>
+
+                <button
+                    id="statisticsBtn"
+                    class="main-btn"
+                >
+                    📊 Factory Statistics
+                </button>
+
+                <button
+                    id="settingsBtn"
+                    class="main-btn"
+                >
+                    ⚙ Settings
+                </button>
+
+            </div>
+
+
+            <div class="save-status">
+
+                <span
+                    id="saveIndicator"
+                    class="save-dot"
+                ></span>
+
+                <span id="saveStatusText">
+                    No factory save found
+                </span>
+
+            </div>
+
+
+            <footer class="menu-footer">
+
+                <p>
+                    Minecraft Redstone Factory
+                </p>
+
+                <span>
+                    Version 1.0
+                </span>
+
+            </footer>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         GAME SCREEN
+    ====================================================== -->
+
+    <main
+        id="gameScreen"
+        class="screen"
+        aria-hidden="true"
+    >
+
+        <!-- =================================================
+             TOP HUD
+        ================================================== -->
+
+        <header id="hud">
+
+            <button
+                id="gameMenuBtn"
+                class="hud-button"
+                title="Return to main menu"
+            >
+                ☰
+            </button>
+
+
+            <div class="hud-stat">
+
+                <span>
+                    🪙 Coins
+                </span>
+
+                <strong id="coinsDisplay">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="hud-stat">
+
+                <span>
+                    ⚡ Power
+                </span>
+
+                <strong id="powerDisplay">
+                    0 / 0
+                </strong>
+
+            </div>
+
+
+            <div class="hud-stat">
+
+                <span>
+                    📦 Items/min
+                </span>
+
+                <strong id="ipmDisplay">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="hud-stat">
+
+                <span>
+                    🧰 Storage
+                </span>
+
+                <strong id="storageDisplay">
+                    0 / 100
+                </strong>
+
+            </div>
+
+
+            <div class="hud-stat">
+
+                <span>
+                    📈 Efficiency
+                </span>
+
+                <strong id="efficiencyDisplay">
+                    100%
+                </strong>
+
+            </div>
+
+
+            <div class="hud-stat small-hud-stat">
+
+                <span id="dayDisplay">
+                    ☀ Day
+                </span>
+
+                <strong id="weatherDisplay">
+                    Clear
+                </strong>
+
+            </div>
+
+
+            <button
+                id="muteBtn"
+                class="hud-button"
+                title="Mute"
+            >
+                🔊
+            </button>
+
+        </header>
+
+
+        <!-- =================================================
+             CHALLENGE HUD
+        ================================================== -->
+
+        <div id="challengeHud">
+
+            <span>
+                🏆 CHALLENGE
+            </span>
+
+            <strong>
+                Reach
+                <span id="challengeTarget">
+                    10,000
+                </span>
+                coins
+            </strong>
+
+            <span>
+                Time:
+                <strong id="challengeTime">
+                    12:00
+                </strong>
+            </span>
+
+        </div>
+
+
+        <!-- =================================================
+             FACTORY AREA
+        ================================================== -->
+
+        <section id="factoryLayout">
+
+            <!-- BUILD PANEL -->
+
+            <aside id="buildPanel">
+
+                <h2>
+                    Factory Builder
+                </h2>
+
+                <p class="panel-subtitle">
+                    Select a block, then tap the factory.
+                </p>
+
+
+                <!-- CONVEYORS -->
+
+                <div class="build-category">
+
+                    <h3>
+                        Conveyors
+                    </h3>
+
+                    <div class="tool-grid">
+
+                        <button
+                            class="tool-btn"
+                            data-tool="belt"
+                        >
+                            <span>➡</span>
+                            Belt
+                            <small>5</small>
+                        </button>
+
+                        <button
+                            class="tool-btn"
+                            data-tool="splitBelt"
+                        >
+                            <span>⑂</span>
+                            Splitter
+                            <small>20</small>
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- MACHINES -->
+
+                <div class="build-category">
+
+                    <h3>
+                        Machines
+                    </h3>
+
+                    <div class="tool-grid">
+
+                        <button
+                            class="tool-btn"
+                            data-tool="miner"
+                        >
+                            <span>⛏</span>
+                            Miner
+                            <small>100</small>
+                        </button>
+
+                        <button
+                            class="tool-btn"
+                            data-tool="crusher"
+                        >
+                            <span>🔨</span>
+                            Crusher
+                            <small>160</small>
+                        </button>
+
+                        <button
+                            class="tool-btn"
+                            data-tool="smelter"
+                        >
+                            <span>🔥</span>
+                            Smelter
+                            <small>140</small>
+                        </button>
+
+                        <button
+                            class="tool-btn"
+                            data-tool="sorter"
+                        >
+                            <span>⇆</span>
+                            Sorter
+                            <small>180</small>
+                        </button>
+
+                        <button
+                            class="tool-btn"
+                            data-tool="crafter"
+                        >
+                            <span>⚙</span>
+                            Crafter
+                            <small>220</small>
+                        </button>
+
+                        <button
+                            class="tool-btn"
+                            data-tool="chest"
+                        >
+                            <span>📦</span>
+                            Chest
+                            <small>80</small>
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- REDSTONE -->
+
+                <div class="build-category">
+
+                    <h3>
+                        Redstone Power
+                    </h3>
+
+                    <div class="tool-grid">
+
+                        <button
+                            class="tool-btn"
+                            data-tool="wire"
+                        >
+                            <span>━</span>
+                            Wire
+                            <small>3</small>
+                        </button>
+
+                        <button
+                            class="tool-btn"
+                            data-tool="lever"
+                        >
+                            <span>🎚</span>
+                            Lever
+                            <small>20</small>
+                        </button>
+
+                        <button
+                            class="tool-btn"
+                            data-tool="button"
+                        >
+                            <span>🔘</span>
+                            Button
+                            <small>15</small>
+                        </button>
+
+                        <button
+                            class="tool-btn"
+                            data-tool="torch"
+                        >
+                            <span>🔴</span>
+                            Torch
+                            <small>25</small>
+                        </button>
+
+                        <button
+                            class="tool-btn"
+                            data-tool="repeater"
+                        >
+                            <span>▶▶</span>
+                            Repeater
+                            <small>30</small>
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CONTROL -->
+
+                <div class="build-category">
+
+                    <h3>
+                        Tools
+                    </h3>
+
+                    <div class="tool-grid">
+
+                        <button
+                            class="tool-btn selected"
+                            data-tool="interact"
+                        >
+                            <span>👆</span>
+                            Interact
+                        </button>
+
+                        <button
+                            class="tool-btn danger-tool"
+                            data-tool="delete"
+                        >
+                            <span>✖</span>
+                            Delete
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    id="rotateBtn"
+                    class="wide-panel-btn"
+                >
+                    ↻ Rotate:
+                    <span id="selectedDirection">
+                        →
+                    </span>
+                </button>
+
+            </aside>
+
+
+            <!-- FACTORY CANVAS -->
+
+            <section id="canvasArea">
+
+                <div id="factoryCanvasWrapper">
+
+                    <canvas id="factoryCanvas"></canvas>
+
+                </div>
+
+
+                <div id="factoryStatusBar">
+
+                    <span>
+                        Tool:
+                        <strong id="selectedToolText">
+                            Interact
+                        </strong>
+                    </span>
+
+                    <span id="factoryMessage">
+                        Build your first production line.
+                    </span>
+
+                </div>
+
+            </section>
+
+
+            <!-- FACTORY CONTROLS -->
+
+            <aside id="factoryControls">
+
+                <h2>
+                    Factory
+                </h2>
+
+                <button
+                    id="inventoryBtn"
+                    class="factory-control-btn"
+                >
+                    📦 Inventory
+                </button>
+
+                <button
+                    id="upgradesBtn"
+                    class="factory-control-btn"
+                >
+                    ⬆ Upgrades
+                </button>
+
+                <button
+                    id="sellBtn"
+                    class="factory-control-btn sell-button"
+                >
+                    🪙 Sell Products
+                </button>
+
+                <button
+                    id="statisticsGameBtn"
+                    class="factory-control-btn"
+                >
+                    📊 Statistics
+                </button>
+
+                <button
+                    id="saveBtn"
+                    class="factory-control-btn"
+                >
+                    💾 Save Factory
+                </button>
+
+                <button
+                    id="helpBtn"
+                    class="factory-control-btn"
+                >
+                    ❔ Help
+                </button>
+
+
+                <div class="production-guide">
+
+                    <h3>
+                        Production
+                    </h3>
+
+                    <p>
+                        ⛏ Miner
+                    </p>
+
+                    <span>↓</span>
+
+                    <p>
+                        🔨 Crusher
+                    </p>
+
+                    <span>↓</span>
+
+                    <p>
+                        🔥 Smelter
+                    </p>
+
+                    <span>↓</span>
+
+                    <p>
+                        ⚙ Crafter
+                    </p>
+
+                    <span>↓</span>
+
+                    <p>
+                        📦 Chest
+                    </p>
+
+                </div>
+
+            </aside>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         SETTINGS
+    ====================================================== -->
+
+    <section
+        id="settingsPanel"
+        class="modal-overlay"
+        aria-hidden="true"
+    >
+
+        <div class="modal-card">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <p class="modal-label">
+                        Factory Control
+                    </p>
+
+                    <h2>
+                        Settings
+                    </h2>
+
+                </div>
+
+                <button
+                    id="closeSettingsBtn"
+                    class="close-btn"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div class="settings-list">
+
+                <div class="setting-row">
+
+                    <div>
+
+                        <strong>
+                            Sound Effects
+                        </strong>
+
+                        <p>
+                            Machines, crafting and selling.
+                        </p>
+
+                    </div>
+
+                    <button
+                        id="soundToggleBtn"
+                        class="toggle-btn"
+                    >
+                        ON
+                    </button>
+
+                </div>
+
+
+                <div class="setting-row">
+
+                    <div>
+
+                        <strong>
+                            Factory Music
+                        </strong>
+
+                        <p>
+                            Simple generated background tones.
+                        </p>
+
+                    </div>
+
+                    <button
+                        id="musicToggleBtn"
+                        class="toggle-btn"
+                    >
+                        ON
+                    </button>
+
+                </div>
+
+
+                <div class="setting-row">
+
+                    <div>
+
+                        <strong>
+                            Visual Effects
+                        </strong>
+
+                        <p>
+                            Smoke, sparks and weather particles.
+                        </p>
+
+                    </div>
+
+                    <button
+                        id="effectsToggleBtn"
+                        class="toggle-btn"
+                    >
+                        ON
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         STATISTICS
+    ====================================================== -->
+
+    <section
+        id="statisticsPanel"
+        class="modal-overlay"
+        aria-hidden="true"
+    >
+
+        <div class="modal-card large-modal">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <p class="modal-label">
+                        Production Report
+                    </p>
+
+                    <h2>
+                        Factory Statistics
+                    </h2>
+
+                </div>
+
+                <button
+                    id="closeStatisticsBtn"
+                    class="close-btn"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div class="statistics-grid">
+
+                <div class="stat-card">
+
+                    <span>
+                        📦
+                    </span>
+
+                    <p>
+                        Items Produced
+                    </p>
+
+                    <strong id="statItemsProduced">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span>
+                        🏭
+                    </span>
+
+                    <p>
+                        Machines Built
+                    </p>
+
+                    <strong id="statMachinesBuilt">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span>
+                        🪙
+                    </span>
+
+                    <p>
+                        Coins Earned
+                    </p>
+
+                    <strong id="statCoinsEarned">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span>
+                        ⏱
+                    </span>
+
+                    <p>
+                        Play Time
+                    </p>
+
+                    <strong id="statPlayTime">
+                        00:00
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span>
+                        📈
+                    </span>
+
+                    <p>
+                        Factory Efficiency
+                    </p>
+
+                    <strong id="statEfficiency">
+                        100%
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span>
+                        🏆
+                    </span>
+
+                    <p>
+                        Best Factory Rating
+                    </p>
+
+                    <strong id="statRating">
+                        -
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         INVENTORY
+    ====================================================== -->
+
+    <section
+        id="inventoryPanel"
+        class="modal-overlay"
+        aria-hidden="true"
+    >
+
+        <div class="modal-card large-modal">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <p class="modal-label">
+                        Storage Network
+                    </p>
+
+                    <h2>
+                        Factory Inventory
+                    </h2>
+
+                </div>
+
+                <button
+                    id="closeInventoryBtn"
+                    class="close-btn"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div id="inventoryList"></div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         UPGRADES
+    ====================================================== -->
+
+    <section
+        id="upgradesPanel"
+        class="modal-overlay"
+        aria-hidden="true"
+    >
+
+        <div class="modal-card large-modal">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <p class="modal-label">
+                        Engineering Department
+                    </p>
+
+                    <h2>
+                        Factory Upgrades
+                    </h2>
+
+                </div>
+
+                <button
+                    id="closeUpgradesBtn"
+                    class="close-btn"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div class="upgrade-grid">
+
+                <article class="upgrade-card">
+
+                    <span>
+                        ➡
+                    </span>
+
+                    <h3>
+                        Faster Belts
+                    </h3>
+
+                    <p>
+                        Increase conveyor speed.
+                    </p>
+
+                    <strong id="beltSpeedLevel">
+                        Level 0
+                    </strong>
+
+                    <button data-upgrade="beltSpeed">
+                        Upgrade
+                    </button>
+
+                </article>
+
+
+                <article class="upgrade-card">
+
+                    <span>
+                        ⛏
+                    </span>
+
+                    <h3>
+                        Faster Miners
+                    </h3>
+
+                    <p>
+                        Mine resources faster.
+                    </p>
+
+                    <strong id="minerSpeedLevel">
+                        Level 0
+                    </strong>
+
+                    <button data-upgrade="minerSpeed">
+                        Upgrade
+                    </button>
+
+                </article>
+
+
+                <article class="upgrade-card">
+
+                    <span>
+                        📦
+                    </span>
+
+                    <h3>
+                        Bigger Storage
+                    </h3>
+
+                    <p>
+                        Increase chest capacity.
+                    </p>
+
+                    <strong id="storageLevel">
+                        Level 0
+                    </strong>
+
+                    <button data-upgrade="storage">
+                        Upgrade
+                    </button>
+
+                </article>
+
+
+                <article class="upgrade-card">
+
+                    <span>
+                        ⚡
+                    </span>
+
+                    <h3>
+                        Stronger Power
+                    </h3>
+
+                    <p>
+                        Redstone signals travel farther.
+                    </p>
+
+                    <strong id="powerLevel">
+                        Level 0
+                    </strong>
+
+                    <button data-upgrade="power">
+                        Upgrade
+                    </button>
+
+                </article>
+
+
+                <article class="upgrade-card">
+
+                    <span>
+                        ⚙
+                    </span>
+
+                    <h3>
+                        Production Speed
+                    </h3>
+
+                    <p>
+                        Machines process items faster.
+                    </p>
+
+                    <strong id="productionLevel">
+                        Level 0
+                    </strong>
+
+                    <button data-upgrade="production">
+                        Upgrade
+                    </button>
+
+                </article>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         HELP
+    ====================================================== -->
+
+    <section
+        id="helpPanel"
+        class="modal-overlay"
+        aria-hidden="true"
+    >
+
+        <div class="modal-card large-modal">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <p class="modal-label">
+                        Engineer Manual
+                    </p>
+
+                    <h2>
+                        How To Play
+                    </h2>
+
+                </div>
+
+                <button
+                    id="closeHelpBtn"
+                    class="close-btn"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div class="help-content">
+
+                <p>
+                    <strong>1.</strong>
+                    Place a Miner.
+                </p>
+
+                <p>
+                    <strong>2.</strong>
+                    Connect Redstone power using a Lever,
+                    Torch or Button and Redstone Wire.
+                </p>
+
+                <p>
+                    <strong>3.</strong>
+                    Place conveyor belts in front of machines.
+                </p>
+
+                <p>
+                    <strong>4.</strong>
+                    Use Rotate before placing belts or machines.
+                </p>
+
+                <p>
+                    <strong>5.</strong>
+                    Send resources through Crushers,
+                    Smelters and Crafters.
+                </p>
+
+                <p>
+                    <strong>6.</strong>
+                    Finish the line with a Storage Chest.
+                </p>
+
+                <p>
+                    <strong>7.</strong>
+                    Open Inventory and sell finished products.
+                </p>
+
+                <p>
+                    <strong>Interact Tool:</strong>
+                    tap Levers and Buttons to activate them.
+                </p>
+
+                <p>
+                    <strong>Splitter Belt:</strong>
+                    alternates items between two directions.
+                </p>
+
+                <p>
+                    Multiple conveyor lines can enter the same belt,
+                    allowing simple belt merging.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         CHALLENGE RESULT
+    ====================================================== -->
+
+    <section
+        id="challengeResultPanel"
+        class="modal-overlay"
+        aria-hidden="true"
+    >
+
+        <div class="modal-card challenge-result">
+
+            <p class="modal-label">
+                Factory Challenge
+            </p>
+
+            <h2 id="challengeResultTitle">
+                Challenge Complete!
+            </h2>
+
+            <div id="challengeResultBody"></div>
+
+            <button
+                id="challengeResultBtn"
+                class="main-btn green-btn"
+            >
+                Return To Main Menu
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
