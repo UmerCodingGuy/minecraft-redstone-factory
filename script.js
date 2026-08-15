@@ -2,9 +2,11 @@
 =========================================================
 MINECRAFT REDSTONE FACTORY
 LEVEL 9
-SCRIPT.JS
 
-Plain JavaScript factory simulation.
+PART 3
+FULL RESTORED SCRIPT.JS
+
+Version 4.1
 =========================================================
 */
 
@@ -13,6 +15,8 @@ Plain JavaScript factory simulation.
 // DOM ELEMENTS
 // =====================================================
 
+// Screens
+
 const mainMenu =
     document.getElementById("mainMenu");
 
@@ -20,7 +24,7 @@ const gameScreen =
     document.getElementById("gameScreen");
 
 
-// Menu
+// Main Menu
 
 const playBtn =
     document.getElementById("playBtn");
@@ -70,11 +74,14 @@ const weatherDisplay =
 const muteBtn =
     document.getElementById("muteBtn");
 
+const soundHudIcon =
+    document.getElementById("soundHudIcon");
+
 const gameMenuBtn =
     document.getElementById("gameMenuBtn");
 
 
-// Challenge
+// Challenge HUD
 
 const challengeHud =
     document.getElementById("challengeHud");
@@ -86,7 +93,7 @@ const challengeTime =
     document.getElementById("challengeTime");
 
 
-// Factory
+// Factory Canvas
 
 const canvas =
     document.getElementById("factoryCanvas");
@@ -106,20 +113,23 @@ const selectedToolText =
 const factoryMessage =
     document.getElementById("factoryMessage");
 
+const factoryModeBadge =
+    document.getElementById("factoryModeBadge");
+
+const autosaveStatus =
+    document.getElementById("autosaveStatus");
+
 const toolButtons =
     document.querySelectorAll(".tool-btn");
 
 
-// Factory controls
+// Factory Control Buttons
 
 const inventoryBtn =
     document.getElementById("inventoryBtn");
 
 const upgradesBtn =
     document.getElementById("upgradesBtn");
-
-const sellBtn =
-    document.getElementById("sellBtn");
 
 const statisticsGameBtn =
     document.getElementById("statisticsGameBtn");
@@ -187,6 +197,16 @@ const closeInventoryBtn =
 const inventoryList =
     document.getElementById("inventoryList");
 
+const inventoryCapacityText =
+    document.getElementById(
+        "inventoryCapacityText"
+    );
+
+const inventorySellAllBtn =
+    document.getElementById(
+        "inventorySellAllBtn"
+    );
+
 
 // Upgrades
 
@@ -197,7 +217,9 @@ const closeUpgradesBtn =
     document.getElementById("closeUpgradesBtn");
 
 const upgradeButtons =
-    document.querySelectorAll("[data-upgrade]");
+    document.querySelectorAll(
+        "[data-upgrade]"
+    );
 
 const beltSpeedLevel =
     document.getElementById("beltSpeedLevel");
@@ -212,7 +234,9 @@ const powerLevel =
     document.getElementById("powerLevel");
 
 const productionLevel =
-    document.getElementById("productionLevel");
+    document.getElementById(
+        "productionLevel"
+    );
 
 
 // Help
@@ -224,7 +248,7 @@ const closeHelpBtn =
     document.getElementById("closeHelpBtn");
 
 
-// Challenge result
+// Challenge Result
 
 const challengeResultPanel =
     document.getElementById(
@@ -247,8 +271,30 @@ const challengeResultBtn =
     );
 
 
+// Confirmation Panel
+
+const confirmPanel =
+    document.getElementById("confirmPanel");
+
+const confirmTitle =
+    document.getElementById("confirmTitle");
+
+const confirmMessage =
+    document.getElementById("confirmMessage");
+
+const confirmCancelBtn =
+    document.getElementById(
+        "confirmCancelBtn"
+    );
+
+const confirmActionBtn =
+    document.getElementById(
+        "confirmActionBtn"
+    );
+
+
 // =====================================================
-// GAME CONSTANTS
+// SAVE KEYS
 // =====================================================
 
 const SAVE_KEY =
@@ -257,27 +303,61 @@ const SAVE_KEY =
 const SETTINGS_KEY =
     "minecraftRedstoneFactorySettings";
 
+const CHALLENGE_RECORD_KEY =
+    "minecraftRedstoneFactoryChallengeRecord";
 
-const GRID_COLUMNS = 14;
-const GRID_ROWS = 9;
+
+// =====================================================
+// FACTORY GRID
+// =====================================================
+
+const GRID_COLUMNS =
+    14;
+
+const GRID_ROWS =
+    9;
+
+const MAX_WORLD_ITEMS =
+    250;
 
 
-// Directions:
-// 0 = right
-// 1 = down
-// 2 = left
-// 3 = up
+// Direction:
+// 0 = Right
+// 1 = Down
+// 2 = Left
+// 3 = Up
 
 const DIRECTIONS = [
-    { x: 1, y: 0, symbol: "→" },
-    { x: 0, y: 1, symbol: "↓" },
-    { x: -1, y: 0, symbol: "←" },
-    { x: 0, y: -1, symbol: "↑" }
+
+    {
+        x: 1,
+        y: 0,
+        symbol: "→"
+    },
+
+    {
+        x: 0,
+        y: 1,
+        symbol: "↓"
+    },
+
+    {
+        x: -1,
+        y: 0,
+        symbol: "←"
+    },
+
+    {
+        x: 0,
+        y: -1,
+        symbol: "↑"
+    }
+
 ];
 
 
 // =====================================================
-// BUILD DEFINITIONS
+// FACTORY BLOCKS
 // =====================================================
 
 const BUILD_DEFINITIONS = {
@@ -288,7 +368,7 @@ const BUILD_DEFINITIONS = {
     },
 
     splitBelt: {
-        name: "Splitter Belt",
+        name: "Splitter",
         cost: 20
     },
 
@@ -360,209 +440,456 @@ const BUILD_DEFINITIONS = {
 };
 
 
-const MACHINE_TYPES = new Set([
-    "miner",
-    "crusher",
-    "smelter",
-    "sorter",
-    "crafter",
-    "chest"
-]);
+const MACHINE_TYPES =
+    new Set([
+
+        "miner",
+        "crusher",
+        "smelter",
+        "sorter",
+        "crafter",
+        "chest"
+
+    ]);
 
 
 const POWERED_MACHINE_TYPES =
     new Set([
+
         "miner",
         "crusher",
         "smelter",
         "sorter",
         "crafter"
+
     ]);
 
 
 // =====================================================
-// RESOURCE DEFINITIONS
+// RESOURCES
 // =====================================================
 
 const RESOURCES = {
 
     coal: {
-        name: "Coal",
-        icon: "⚫",
-        color: "#303030",
-        value: 3
+
+        name:
+            "Coal",
+
+        color:
+            "#252927",
+
+        light:
+            "#6d7770",
+
+        value:
+            3
+
     },
+
 
     iron_ore: {
-        name: "Iron Ore",
-        icon: "⬜",
-        color: "#b0a79c",
-        value: 5
+
+        name:
+            "Iron Ore",
+
+        color:
+            "#a69d90",
+
+        light:
+            "#d2c9bc",
+
+        value:
+            5
+
     },
+
 
     gold_ore: {
-        name: "Gold Ore",
-        icon: "🟨",
-        color: "#d6b131",
-        value: 8
+
+        name:
+            "Gold Ore",
+
+        color:
+            "#c6a22d",
+
+        light:
+            "#f4d45c",
+
+        value:
+            8
+
     },
+
 
     diamond: {
-        name: "Diamond",
-        icon: "💎",
-        color: "#43d9db",
-        value: 35
+
+        name:
+            "Diamond",
+
+        color:
+            "#3ac7cb",
+
+        light:
+            "#8cf6f7",
+
+        value:
+            35
+
     },
+
 
     emerald: {
-        name: "Emerald",
-        icon: "🟩",
-        color: "#36c76a",
-        value: 30
+
+        name:
+            "Emerald",
+
+        color:
+            "#2dbb62",
+
+        light:
+            "#6af08f",
+
+        value:
+            30
+
     },
+
 
     redstone: {
-        name: "Redstone",
-        icon: "🔴",
-        color: "#d82f2f",
-        value: 7
+
+        name:
+            "Redstone",
+
+        color:
+            "#c82929",
+
+        light:
+            "#ff5959",
+
+        value:
+            7
+
     },
+
 
     copper_ore: {
-        name: "Copper Ore",
-        icon: "🟧",
-        color: "#b46d45",
-        value: 6
+
+        name:
+            "Copper Ore",
+
+        color:
+            "#a96743",
+
+        light:
+            "#dc936b",
+
+        value:
+            6
+
     },
+
 
     quartz: {
-        name: "Quartz",
-        icon: "🔳",
-        color: "#ece4dc",
-        value: 11
+
+        name:
+            "Quartz",
+
+        color:
+            "#d9d0c7",
+
+        light:
+            "#fff7ee",
+
+        value:
+            11
+
     },
 
+
     netherite_scrap: {
-        name: "Netherite Scrap",
-        icon: "⬛",
-        color: "#4b4145",
-        value: 50
+
+        name:
+            "Netherite Scrap",
+
+        color:
+            "#443a40",
+
+        light:
+            "#776a71",
+
+        value:
+            50
+
     },
 
 
     crushed_iron: {
-        name: "Crushed Iron",
-        icon: "🔩",
-        color: "#a6a6a6",
-        value: 7
+
+        name:
+            "Crushed Iron",
+
+        color:
+            "#909795",
+
+        light:
+            "#c8cecb",
+
+        value:
+            7
+
     },
+
 
     crushed_gold: {
-        name: "Crushed Gold",
-        icon: "✨",
-        color: "#e0c14b",
-        value: 11
+
+        name:
+            "Crushed Gold",
+
+        color:
+            "#d0b144",
+
+        light:
+            "#ffe478",
+
+        value:
+            11
+
     },
 
+
     crushed_copper: {
-        name: "Crushed Copper",
-        icon: "🟤",
-        color: "#bd7650",
-        value: 8
+
+        name:
+            "Crushed Copper",
+
+        color:
+            "#b56e4c",
+
+        light:
+            "#e89970",
+
+        value:
+            8
+
     },
 
 
     iron_ingot: {
-        name: "Iron Ingot",
-        icon: "▰",
-        color: "#d0d0d0",
-        value: 13
+
+        name:
+            "Iron Ingot",
+
+        color:
+            "#bfc7c4",
+
+        light:
+            "#f1f5f3",
+
+        value:
+            13
+
     },
+
 
     gold_ingot: {
-        name: "Gold Ingot",
-        icon: "▰",
-        color: "#f3d04c",
-        value: 20
+
+        name:
+            "Gold Ingot",
+
+        color:
+            "#e0bc3a",
+
+        light:
+            "#ffe66c",
+
+        value:
+            20
+
     },
 
+
     copper_ingot: {
-        name: "Copper Ingot",
-        icon: "▰",
-        color: "#cb8055",
-        value: 15
+
+        name:
+            "Copper Ingot",
+
+        color:
+            "#bd704a",
+
+        light:
+            "#e99a72",
+
+        value:
+            15
+
     },
 
 
     iron_gear: {
-        name: "Iron Gear",
-        icon: "⚙",
-        color: "#aab2b5",
-        value: 45,
-        product: true
+
+        name:
+            "Iron Gear",
+
+        color:
+            "#8f9995",
+
+        light:
+            "#d5ddda",
+
+        value:
+            45,
+
+        product:
+            true
+
     },
+
 
     powered_component: {
-        name: "Powered Component",
-        icon: "⚡",
-        color: "#ffd74c",
-        value: 75,
-        product: true
+
+        name:
+            "Powered Component",
+
+        color:
+            "#e7bf32",
+
+        light:
+            "#ffe76a",
+
+        value:
+            75,
+
+        product:
+            true
+
     },
+
 
     copper_coil: {
-        name: "Copper Coil",
-        icon: "➰",
-        color: "#dc875a",
-        value: 55,
-        product: true
+
+        name:
+            "Copper Coil",
+
+        color:
+            "#c9794e",
+
+        light:
+            "#f1a277",
+
+        value:
+            55,
+
+        product:
+            true
+
     },
+
 
     diamond_drill: {
-        name: "Diamond Drill",
-        icon: "💠",
-        color: "#45e6ea",
-        value: 180,
-        product: true
+
+        name:
+            "Diamond Drill",
+
+        color:
+            "#35cdd0",
+
+        light:
+            "#88ffff",
+
+        value:
+            180,
+
+        product:
+            true
+
     },
+
 
     trading_module: {
-        name: "Trading Module",
-        icon: "💚",
-        color: "#32df6c",
-        value: 150,
-        product: true
+
+        name:
+            "Trading Module",
+
+        color:
+            "#2fc864",
+
+        light:
+            "#78f39a",
+
+        value:
+            150,
+
+        product:
+            true
+
     },
+
 
     redstone_circuit: {
-        name: "Redstone Circuit",
-        icon: "🔺",
-        color: "#ed3b3b",
-        value: 65,
-        product: true
+
+        name:
+            "Redstone Circuit",
+
+        color:
+            "#df3030",
+
+        light:
+            "#ff6d6d",
+
+        value:
+            65,
+
+        product:
+            true
+
     },
+
 
     comparator_core: {
-        name: "Comparator Core",
-        icon: "🔷",
-        color: "#eeeeee",
-        value: 95,
-        product: true
+
+        name:
+            "Comparator Core",
+
+        color:
+            "#d4d8d6",
+
+        light:
+            "#ffffff",
+
+        value:
+            95,
+
+        product:
+            true
+
     },
 
+
     reinforced_part: {
-        name: "Reinforced Part",
-        icon: "⬢",
-        color: "#5a4c53",
-        value: 260,
-        product: true
+
+        name:
+            "Reinforced Part",
+
+        color:
+            "#50444a",
+
+        light:
+            "#87767e",
+
+        value:
+            260,
+
+        product:
+            true
+
     }
 
 };
 
 
 // =====================================================
-// RECIPES
+// MACHINE RECIPES
 // =====================================================
 
 const CRUSHER_RECIPES = {
@@ -631,13 +958,31 @@ const CRAFTER_RECIPES = {
 };
 
 
-const RARE_RESOURCES =
-    new Set([
-        "diamond",
-        "emerald",
-        "quartz",
-        "netherite_scrap"
-    ]);
+// =====================================================
+// SORTER FILTERS
+// =====================================================
+
+const SORTER_FILTERS = [
+
+    "coal",
+
+    "iron_ore",
+
+    "gold_ore",
+
+    "copper_ore",
+
+    "redstone",
+
+    "diamond",
+
+    "emerald",
+
+    "quartz",
+
+    "netherite_scrap"
+
+];
 
 
 // =====================================================
@@ -646,84 +991,161 @@ const RARE_RESOURCES =
 
 const DEFAULT_SETTINGS = {
 
-    sound: true,
+    sound:
+        true,
 
-    music: true,
+    music:
+        true,
 
-    effects: true,
+    effects:
+        true,
 
-    muted: false
+    muted:
+        false
 
 };
 
+
+// =====================================================
+// UPGRADE COSTS
+// =====================================================
+
+const UPGRADE_BASE_COSTS = {
+
+    beltSpeed:
+        400,
+
+    minerSpeed:
+        450,
+
+    storage:
+        350,
+
+    power:
+        500,
+
+    production:
+        600
+
+};
+
+
+// =====================================================
+// RUNTIME STATE
+// =====================================================
 
 let settings = {
     ...DEFAULT_SETTINGS
 };
 
 
-// =====================================================
-// GAME STATE
-// =====================================================
+let state =
+    null;
 
-let state = null;
 
-let gameRunning = false;
+let gameRunning =
+    false;
 
-let paused = false;
 
-let selectedTool = "interact";
+let paused =
+    false;
 
-let direction = 0;
 
-let hoveredCell = null;
+let selectedTool =
+    "interact";
+
+
+let direction =
+    0;
+
+
+let hoveredCell =
+    null;
+
 
 let poweredMachines =
     new Set();
 
+
 let poweredNetwork =
     new Set();
 
-let productionTimes = [];
 
-let particles = [];
+let activePowerSources =
+    0;
 
-let weatherParticles = [];
+
+let productionTimes =
+    [];
+
+
+let particles =
+    [];
+
+
+let weatherParticles =
+    [];
+
 
 let lastFrameTime =
     performance.now();
 
-let autoSaveTimer = 0;
 
-let hudTimer = 0;
+let autoSaveTimer =
+    0;
 
-let powerTimer = 0;
 
-let weatherTimer = 0;
+let hudTimer =
+    0;
 
-let conveyorSoundTimer = 0;
 
-let audioContext = null;
+let powerTimer =
+    0;
 
-let musicInterval = null;
 
-let temporaryMessageTimer = null;
+let weatherTimer =
+    0;
+
+
+let conveyorSoundTimer =
+    0;
+
+
+let audioContext =
+    null;
+
+
+let musicInterval =
+    null;
+
+
+let temporaryMessageTimer =
+    null;
+
+
+let confirmResolver =
+    null;
 
 
 // =====================================================
-// DEFAULT STATE
+// NEW FACTORY STATE
 // =====================================================
 
-function createNewState(challenge = false) {
+function createNewState(
+    challenge = false
+) {
 
     return {
 
-        version: 1,
+        version:
+            4,
+
 
         coins:
             challenge
                 ? 350
                 : 1500,
+
 
         cells:
             Array(
@@ -731,62 +1153,82 @@ function createNewState(challenge = false) {
                 GRID_ROWS
             ).fill(null),
 
-        items: [],
 
-        inventory: {},
+        items:
+            [],
+
+
+        inventory:
+            {},
+
 
         upgrades: {
 
-            beltSpeed: 0,
+            beltSpeed:
+                0,
 
-            minerSpeed: 0,
+            minerSpeed:
+                0,
 
-            storage: 0,
+            storage:
+                0,
 
-            power: 0,
+            power:
+                0,
 
-            production: 0
+            production:
+                0
 
         },
+
 
         statistics: {
 
-            itemsProduced: 0,
+            itemsProduced:
+                0,
 
-            machinesBuilt: 0,
+            machinesBuilt:
+                0,
 
-            coinsEarned: 0,
+            coinsEarned:
+                0,
 
-            playTime: 0,
+            playTime:
+                0,
 
-            efficiency: 100,
-
-            bestRating: "-"
+            efficiency:
+                100
 
         },
+
 
         challenge: {
 
-            active: challenge,
+            active:
+                challenge,
 
-            timeLeft: 720,
+            timeLeft:
+                720,
 
-            target: 10000,
+            target:
+                10000,
 
-            startCoins:
-                challenge
-                    ? 350
-                    : 1500,
-
-            finished: false
+            finished:
+                false
 
         },
 
-        timeOfDay: 0.28,
 
-        weather: "clear",
+        timeOfDay:
+            0.28,
 
-        savedAt: Date.now()
+
+        weather:
+            "clear",
+
+
+        savedAt:
+            Date.now()
 
     };
 
@@ -794,92 +1236,802 @@ function createNewState(challenge = false) {
 
 
 // =====================================================
-// LOCAL STORAGE
+// NORMALIZE OLD SAVES
 // =====================================================
 
-function saveGame(showMessage = false) {
+function normalizeCell(
+    cell
+) {
 
-    if (!state) {
-        return;
+    if (
+        !cell ||
+        typeof cell !==
+        "object" ||
+        !BUILD_DEFINITIONS[
+            cell.type
+        ]
+    ) {
+
+        return null;
+
     }
 
-    state.savedAt = Date.now();
+
+    return {
+
+        type:
+            cell.type,
+
+
+        dir:
+            Number.isInteger(
+                cell.dir
+            )
+                ? (
+                    (
+                        cell.dir %
+                        4
+                    ) +
+                    4
+                ) %
+                4
+                : 0,
+
+
+        timer:
+            Number.isFinite(
+                Number(
+                    cell.timer
+                )
+            )
+                ? Number(
+                    cell.timer
+                )
+                : 0,
+
+
+        process:
+            Number.isFinite(
+                Number(
+                    cell.process
+                )
+            )
+                ? Number(
+                    cell.process
+                )
+                : 0,
+
+
+        buffer:
+            Array.isArray(
+                cell.buffer
+            )
+                ? cell.buffer.filter(
+                    resource =>
+                        RESOURCES[
+                            resource
+                        ]
+                )
+                : [],
+
+
+        splitToggle:
+            !!cell.splitToggle,
+
+
+        enabled:
+            cell.type ===
+            "lever"
+                ? cell.enabled !==
+                  false
+                : cell.enabled,
+
+
+        buttonUntil:
+            Number(
+                cell.buttonUntil
+            ) ||
+            0,
+
+
+        filter:
+            SORTER_FILTERS.includes(
+                cell.filter
+            )
+                ? cell.filter
+                : "coal"
+
+    };
+
+}
+
+
+function normalizeLoadedState(
+    raw
+) {
+
+    const fresh =
+        createNewState(
+            false
+        );
+
+
+    if (
+        !raw ||
+        typeof raw !==
+        "object"
+    ) {
+
+        return fresh;
+
+    }
+
+
+    if (
+        Number.isFinite(
+            Number(
+                raw.coins
+            )
+        )
+    ) {
+
+        fresh.coins =
+            Math.max(
+                0,
+                Number(
+                    raw.coins
+                )
+            );
+
+    }
+
+
+    if (
+        raw.inventory &&
+        typeof raw.inventory ===
+        "object"
+    ) {
+
+        for (
+            const [
+                resource,
+                count
+            ] of Object.entries(
+                raw.inventory
+            )
+        ) {
+
+            if (
+                !RESOURCES[
+                    resource
+                ]
+            ) {
+
+                continue;
+
+            }
+
+
+            fresh.inventory[
+                resource
+            ] =
+                Math.max(
+
+                    0,
+
+                    Math.floor(
+                        Number(
+                            count
+                        ) ||
+                        0
+                    )
+
+                );
+
+        }
+
+    }
+
+
+    fresh.upgrades = {
+
+        ...fresh.upgrades,
+
+        ...(
+            raw.upgrades ||
+            {}
+        )
+
+    };
+
+
+    for (
+        const key of
+        Object.keys(
+            fresh.upgrades
+        )
+    ) {
+
+        fresh.upgrades[
+            key
+        ] =
+            Math.max(
+
+                0,
+
+                Math.min(
+
+                    5,
+
+                    Math.floor(
+                        Number(
+                            fresh.upgrades[
+                                key
+                            ]
+                        ) ||
+                        0
+                    )
+
+                )
+
+            );
+
+    }
+
+
+    fresh.statistics = {
+
+        ...fresh.statistics,
+
+        ...(
+            raw.statistics ||
+            {}
+        )
+
+    };
+
+
+    if (
+        Array.isArray(
+            raw.cells
+        )
+    ) {
+
+        fresh.cells =
+            Array(
+                GRID_COLUMNS *
+                GRID_ROWS
+            ).fill(null);
+
+
+        for (
+            let i = 0;
+            i <
+            Math.min(
+                raw.cells.length,
+                fresh.cells.length
+            );
+            i++
+        ) {
+
+            fresh.cells[
+                i
+            ] =
+                normalizeCell(
+                    raw.cells[
+                        i
+                    ]
+                );
+
+        }
+
+    }
+
+
+    if (
+        Array.isArray(
+            raw.items
+        )
+    ) {
+
+        fresh.items =
+            raw.items
+
+                .filter(
+                    item =>
+                        item &&
+                        RESOURCES[
+                            item.resource
+                        ]
+                )
+
+                .slice(
+                    0,
+                    MAX_WORLD_ITEMS
+                )
+
+                .map(
+                    item => ({
+
+                        resource:
+                            item.resource,
+
+
+                        x:
+                            Math.max(
+
+                                0,
+
+                                Math.min(
+
+                                    GRID_COLUMNS -
+                                    1,
+
+                                    Math.floor(
+                                        Number(
+                                            item.x
+                                        ) ||
+                                        0
+                                    )
+
+                                )
+
+                            ),
+
+
+                        y:
+                            Math.max(
+
+                                0,
+
+                                Math.min(
+
+                                    GRID_ROWS -
+                                    1,
+
+                                    Math.floor(
+                                        Number(
+                                            item.y
+                                        ) ||
+                                        0
+                                    )
+
+                                )
+
+                            ),
+
+
+                        dir:
+                            Number.isInteger(
+                                item.dir
+                            )
+                                ? (
+                                    (
+                                        item.dir %
+                                        4
+                                    ) +
+                                    4
+                                ) %
+                                4
+                                : 0,
+
+
+                        progress:
+                            Math.max(
+
+                                0,
+
+                                Math.min(
+
+                                    0.98,
+
+                                    Number(
+                                        item.progress
+                                    ) ||
+                                    0
+
+                                )
+
+                            ),
+
+
+                        remove:
+                            false
+
+                    })
+                );
+
+    }
+
+
+    if (
+        Number.isFinite(
+            Number(
+                raw.timeOfDay
+            )
+        )
+    ) {
+
+        fresh.timeOfDay =
+            (
+                (
+                    Number(
+                        raw.timeOfDay
+                    ) %
+                    1
+                ) +
+                1
+            ) %
+            1;
+
+    }
+
+
+    if (
+        [
+            "clear",
+            "rain",
+            "snow",
+            "thunder"
+        ].includes(
+            raw.weather
+        )
+    ) {
+
+        fresh.weather =
+            raw.weather;
+
+    }
+
+
+    // Continue always opens normal mode.
+
+    fresh.challenge.active =
+        false;
+
+
+    fresh.challenge.finished =
+        false;
+
+
+    return fresh;
+
+}
+
+
+// =====================================================
+// CHALLENGE RECORD
+// =====================================================
+
+function loadChallengeRecord() {
+
+    try {
+
+        const raw =
+            localStorage.getItem(
+                CHALLENGE_RECORD_KEY
+            );
+
+
+        if (
+            !raw
+        ) {
+
+            return {
+
+                bestRating:
+                    "-",
+
+                bestProfit:
+                    0,
+
+                bestItems:
+                    0
+
+            };
+
+        }
+
+
+        const saved =
+            JSON.parse(
+                raw
+            );
+
+
+        return {
+
+            bestRating:
+                [
+                    "S",
+                    "A",
+                    "B",
+                    "C"
+                ].includes(
+                    saved.bestRating
+                )
+                    ? saved.bestRating
+                    : "-",
+
+
+            bestProfit:
+                Number(
+                    saved.bestProfit
+                ) ||
+                0,
+
+
+            bestItems:
+                Number(
+                    saved.bestItems
+                ) ||
+                0
+
+        };
+
+    } catch {
+
+        return {
+
+            bestRating:
+                "-",
+
+            bestProfit:
+                0,
+
+            bestItems:
+                0
+
+        };
+
+    }
+
+}
+
+
+function saveChallengeRecord(
+    rating,
+    profit,
+    items
+) {
+
+    const record =
+        loadChallengeRecord();
+
+
+    const ranks = {
+
+        "-":
+            0,
+
+        C:
+            1,
+
+        B:
+            2,
+
+        A:
+            3,
+
+        S:
+            4
+
+    };
+
+
+    if (
+        (
+            ranks[
+                rating
+            ] ||
+            0
+        ) >
+        (
+            ranks[
+                record.bestRating
+            ] ||
+            0
+        )
+    ) {
+
+        record.bestRating =
+            rating;
+
+    }
+
+
+    record.bestProfit =
+        Math.max(
+            record.bestProfit,
+            profit
+        );
+
+
+    record.bestItems =
+        Math.max(
+            record.bestItems,
+            items
+        );
+
 
     localStorage.setItem(
-        SAVE_KEY,
-        JSON.stringify(state)
+
+        CHALLENGE_RECORD_KEY,
+
+        JSON.stringify(
+            record
+        )
+
     );
+
+}
+
+
+// =====================================================
+// SAVE GAME
+// =====================================================
+
+function saveGame(
+    showMessage = false
+) {
+
+    if (
+        !state
+    ) {
+
+        return;
+
+    }
+
+
+    // Challenge does not replace normal factory.
+
+    if (
+        state.challenge.active
+    ) {
+
+        if (
+            showMessage
+        ) {
+
+            showFactoryMessage(
+                "Challenge runs are temporary. Your normal factory is safe."
+            );
+
+        }
+
+
+        return;
+
+    }
+
+
+    state.savedAt =
+        Date.now();
+
+
+    localStorage.setItem(
+
+        SAVE_KEY,
+
+        JSON.stringify(
+            state
+        )
+
+    );
+
 
     updateContinueButton();
 
-    if (showMessage) {
+
+    if (
+        showMessage
+    ) {
 
         showFactoryMessage(
             "Factory saved successfully."
         );
 
-        playSound("save");
+
+        playSound(
+            "save"
+        );
+
     }
 
 }
 
 
+// =====================================================
+// LOAD GAME
+// =====================================================
+
 function loadGame() {
 
-    const saved =
+    const raw =
         localStorage.getItem(
             SAVE_KEY
         );
 
-    if (!saved) {
+
+    if (
+        !raw
+    ) {
+
         return null;
+
     }
+
 
     try {
 
-        const loaded =
-            JSON.parse(saved);
-
-        if (
-            !Array.isArray(
-                loaded.cells
+        return normalizeLoadedState(
+            JSON.parse(
+                raw
             )
-        ) {
-            return null;
-        }
+        );
 
-        return loaded;
-
-    } catch (error) {
+    } catch (
+        error
+    ) {
 
         console.error(
-            "Save load error:",
+            "Could not load factory:",
             error
         );
 
+
         return null;
+
     }
 
 }
 
 
 // =====================================================
-// SETTINGS STORAGE
+// CHECK SAVE
+// =====================================================
+
+function hasUsableSave() {
+
+    const raw =
+        localStorage.getItem(
+            SAVE_KEY
+        );
+
+
+    if (
+        !raw
+    ) {
+
+        return false;
+
+    }
+
+
+    try {
+
+        JSON.parse(
+            raw
+        );
+
+
+        return true;
+
+    } catch {
+
+        return false;
+
+    }
+
+}
+
+
+// =====================================================
+// SETTINGS SYSTEM
 // =====================================================
 
 function loadSettings() {
-
-    const saved =
-        localStorage.getItem(
-            SETTINGS_KEY
-        );
-
-    if (!saved) {
-
-        updateSettingsUI();
-
-        return;
-    }
 
     try {
 
@@ -887,26 +2039,75 @@ function loadSettings() {
 
             ...DEFAULT_SETTINGS,
 
-            ...JSON.parse(saved)
+            ...JSON.parse(
+                localStorage.getItem(
+                    SETTINGS_KEY
+                ) ||
+                "{}"
+            )
 
         };
 
-    } catch (error) {
+    } catch {
 
         settings = {
             ...DEFAULT_SETTINGS
         };
+
     }
 
+
     updateSettingsUI();
+
 }
 
 
 function saveSettings() {
 
     localStorage.setItem(
+
         SETTINGS_KEY,
-        JSON.stringify(settings)
+
+        JSON.stringify(
+            settings
+        )
+
+    );
+
+}
+
+
+function updateToggleButton(
+    button,
+    enabled
+) {
+
+    if (
+        !button
+    ) {
+
+        return;
+
+    }
+
+
+    button.textContent =
+        enabled
+            ? "ON"
+            : "OFF";
+
+
+    button.classList.toggle(
+        "active",
+        enabled
+    );
+
+
+    button.setAttribute(
+        "aria-pressed",
+        String(
+            enabled
+        )
     );
 
 }
@@ -919,262 +2120,472 @@ function updateSettingsUI() {
         settings.sound
     );
 
+
     updateToggleButton(
         musicToggleBtn,
         settings.music
     );
+
 
     updateToggleButton(
         effectsToggleBtn,
         settings.effects
     );
 
-    muteBtn.textContent =
-        settings.muted
-            ? "🔇"
-            : "🔊";
-}
+
+    if (
+        soundHudIcon
+    ) {
+
+        soundHudIcon.style.opacity =
+            settings.muted
+                ? "0.35"
+                : "1";
 
 
-function updateToggleButton(
-    button,
-    enabled
-) {
+        soundHudIcon.style.filter =
+            settings.muted
+                ? "grayscale(1)"
+                : "none";
 
-    button.textContent =
-        enabled
-            ? "ON"
-            : "OFF";
+    }
 
-    button.classList.toggle(
-        "active",
-        enabled
-    );
+
+    if (
+        muteBtn
+    ) {
+
+        muteBtn.title =
+            settings.muted
+                ? "Unmute"
+                : "Mute";
+
+    }
+
 }
 
 
 // =====================================================
-// MENU
+// CUSTOM CONFIRMATION
+// =====================================================
+
+function showConfirmation(
+    title,
+    message,
+    confirmText =
+        "Confirm"
+) {
+
+    if (
+        confirmResolver
+    ) {
+
+        const oldResolver =
+            confirmResolver;
+
+
+        confirmResolver =
+            null;
+
+
+        oldResolver(
+            false
+        );
+
+    }
+
+
+    confirmTitle.textContent =
+        title;
+
+
+    confirmMessage.textContent =
+        message;
+
+
+    confirmActionBtn.textContent =
+        confirmText;
+
+
+    openPanel(
+        confirmPanel
+    );
+
+
+    return new Promise(
+        resolve => {
+
+            confirmResolver =
+                resolve;
+
+        }
+    );
+
+}
+
+
+function closeConfirmation(
+    result
+) {
+
+    closePanel(
+        confirmPanel
+    );
+
+
+    if (
+        confirmResolver
+    ) {
+
+        const resolver =
+            confirmResolver;
+
+
+        confirmResolver =
+            null;
+
+
+        resolver(
+            result
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// MAIN MENU
 // =====================================================
 
 function updateContinueButton() {
 
     const hasSave =
-        localStorage.getItem(
-            SAVE_KEY
-        ) !== null;
+        hasUsableSave();
+
 
     continueBtn.disabled =
         !hasSave;
 
-    if (hasSave) {
 
-        saveIndicator.classList.add(
-            "active"
-        );
-
-        saveStatusText.textContent =
-            "Factory save found";
-
-    } else {
-
-        saveIndicator.classList.remove(
-            "active"
-        );
-
-        saveStatusText.textContent =
-            "No factory save found";
-    }
-
-}
+    saveIndicator.classList.toggle(
+        "active",
+        hasSave
+    );
 
 
-function startNewFactory(
-    challenge = false
-) {
+    saveStatusText.textContent =
+        hasSave
+            ? "Factory save found"
+            : "No factory save found";
 
-    if (
-        localStorage.getItem(
-            SAVE_KEY
-        )
-    ) {
-
-        const replace =
-            confirm(
-                "A factory save already exists.\n\nReplace it with a new factory?"
-            );
-
-        if (!replace) {
-            return;
-        }
-    }
-
-    state =
-        createNewState(
-            challenge
-        );
-
-    saveGame();
-
-    openGame();
-}
-
-
-function continueFactory() {
-
-    const loaded =
-        loadGame();
-
-    if (!loaded) {
-
-        alert(
-            "Your factory save could not be loaded."
-        );
-
-        return;
-    }
-
-    state = loaded;
-
-    ensureLoadedState();
-
-    openGame();
-}
-
-
-function ensureLoadedState() {
-
-    state.inventory =
-        state.inventory || {};
-
-    state.items =
-        state.items || [];
-
-    state.upgrades = {
-
-        beltSpeed: 0,
-        minerSpeed: 0,
-        storage: 0,
-        power: 0,
-        production: 0,
-
-        ...state.upgrades
-    };
-
-    state.statistics = {
-
-        itemsProduced: 0,
-        machinesBuilt: 0,
-        coinsEarned: 0,
-        playTime: 0,
-        efficiency: 100,
-        bestRating: "-",
-
-        ...state.statistics
-    };
-
-    state.challenge = {
-
-        active: false,
-        timeLeft: 720,
-        target: 10000,
-        startCoins: state.coins,
-        finished: false,
-
-        ...state.challenge
-    };
-
-    state.timeOfDay =
-        Number.isFinite(
-            state.timeOfDay
-        )
-            ? state.timeOfDay
-            : 0.3;
-
-    state.weather =
-        state.weather ||
-        "clear";
 }
 
 
 // =====================================================
-// OPEN / CLOSE GAME
+// NEW FACTORY
+// =====================================================
+
+async function startNewFactory() {
+
+    if (
+        hasUsableSave()
+    ) {
+
+        const replace =
+            await showConfirmation(
+
+                "Start New Factory?",
+
+                "A saved factory already exists. Starting a new factory will replace it.",
+
+                "Start New Factory"
+
+            );
+
+
+        if (
+            !replace
+        ) {
+
+            return;
+
+        }
+
+    }
+
+
+    state =
+        createNewState(
+            false
+        );
+
+
+    saveGame();
+
+
+    openGame();
+
+}
+
+
+// =====================================================
+// CONTINUE FACTORY
+// =====================================================
+
+async function continueFactory() {
+
+    const loaded =
+        loadGame();
+
+
+    if (
+        !loaded
+    ) {
+
+        await showConfirmation(
+
+            "Save Error",
+
+            "Your factory save could not be loaded.",
+
+            "OK"
+
+        );
+
+
+        return;
+
+    }
+
+
+    state =
+        loaded;
+
+
+    openGame();
+
+}
+
+
+// =====================================================
+// START CHALLENGE
+// =====================================================
+
+function startChallenge() {
+
+    state =
+        createNewState(
+            true
+        );
+
+
+    openGame();
+
+}
+
+
+// =====================================================
+// OPEN GAME
 // =====================================================
 
 function openGame() {
 
     ensureAudio();
 
+
     mainMenu.classList.remove(
         "active-screen"
     );
 
+
+    mainMenu.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
     gameScreen.classList.add(
         "active-screen"
     );
+
 
     gameScreen.setAttribute(
         "aria-hidden",
         "false"
     );
 
-    gameRunning = true;
 
-    paused = false;
+    gameRunning =
+        true;
+
+
+    paused =
+        false;
+
+
+    hoveredCell =
+        null;
+
+
+    productionTimes =
+        [];
+
+
+    particles =
+        [];
+
+
+    weatherParticles =
+        [];
+
+
+    autoSaveTimer =
+        0;
+
+
+    hudTimer =
+        0;
+
+
+    powerTimer =
+        0;
+
+
+    weatherTimer =
+        0;
+
+
+    conveyorSoundTimer =
+        0;
+
 
     challengeHud.classList.toggle(
+
         "active",
+
         state.challenge.active &&
         !state.challenge.finished
+
     );
 
-    resizeCanvas();
 
-    updateToolUI();
+    factoryModeBadge.textContent =
+        state.challenge.active
 
-    updateUpgradesUI();
+            ? "CHALLENGE MODE"
 
-    updateHUD();
+            : "AUTOMATION ONLINE";
 
-    computePowerNetwork();
+
+    autosaveStatus.textContent =
+        state.challenge.active
+
+            ? "TEMPORARY RUN"
+
+            : "AUTOSAVE ON";
+
+
+    requestAnimationFrame(
+        () => {
+
+            resizeCanvas();
+
+            computePowerNetwork();
+
+            updateToolUI();
+
+            updateUpgradesUI();
+
+            updateHUD();
+
+        }
+    );
+
 
     startMusic();
 
+
     showFactoryMessage(
+
         state.challenge.active
-            ? "Challenge started! Reach 10,000 coins."
-            : "Factory online."
+
+            ? "Challenge started. Earn 10,000 coins before time runs out."
+
+            : "Factory ready. Build your production line."
+
     );
+
 }
 
 
+// =====================================================
+// RETURN TO MENU
+// =====================================================
+
 function returnToMainMenu() {
 
-    if (state) {
+    if (
+        state &&
+        !state.challenge.active
+    ) {
+
         saveGame();
+
     }
 
-    gameRunning = false;
 
-    paused = false;
+    gameRunning =
+        false;
+
+
+    paused =
+        false;
+
+
+    hoveredCell =
+        null;
+
 
     stopMusic();
 
+
     closeAllPanels();
 
-    challengeResultPanel.classList.remove(
-        "open"
+
+    closePanel(
+        confirmPanel
     );
+
 
     gameScreen.classList.remove(
         "active-screen"
     );
 
+
+    gameScreen.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
     mainMenu.classList.add(
         "active-screen"
     );
 
+
+    mainMenu.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+
+    state =
+        null;
+
+
     updateContinueButton();
+
 }
 
 
@@ -1182,60 +2593,200 @@ function returnToMainMenu() {
 // GRID HELPERS
 // =====================================================
 
-function getIndex(x, y) {
+function getIndex(
+    x,
+    y
+) {
 
     return (
         y *
         GRID_COLUMNS +
         x
     );
+
 }
 
 
-function inBounds(x, y) {
+function inBounds(
+    x,
+    y
+) {
 
     return (
-        x >= 0 &&
-        x < GRID_COLUMNS &&
-        y >= 0 &&
-        y < GRID_ROWS
+
+        x >=
+        0 &&
+
+        x <
+        GRID_COLUMNS &&
+
+        y >=
+        0 &&
+
+        y <
+        GRID_ROWS
+
     );
+
 }
 
 
-function getCell(x, y) {
+function getCell(
+    x,
+    y
+) {
 
-    if (!inBounds(x, y)) {
+    if (
+        !state ||
+        !inBounds(
+            x,
+            y
+        )
+    ) {
+
         return null;
+
     }
+
 
     return state.cells[
-        getIndex(x, y)
+        getIndex(
+            x,
+            y
+        )
     ];
+
 }
 
 
-function setCell(x, y, value) {
+function setCell(
+    x,
+    y,
+    value
+) {
 
-    if (!inBounds(x, y)) {
+    if (
+        !state ||
+        !inBounds(
+            x,
+            y
+        )
+    ) {
+
         return;
+
     }
 
+
     state.cells[
-        getIndex(x, y)
-    ] = value;
+        getIndex(
+            x,
+            y
+        )
+    ] =
+        value;
+
+}
+
+
+function getCellFromPointer(
+    event
+) {
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+
+    if (
+        !rect.width ||
+        !rect.height
+    ) {
+
+        return null;
+
+    }
+
+
+    const x =
+        Math.floor(
+
+            (
+                event.clientX -
+                rect.left
+            ) /
+
+            rect.width *
+
+            GRID_COLUMNS
+
+        );
+
+
+    const y =
+        Math.floor(
+
+            (
+                event.clientY -
+                rect.top
+            ) /
+
+            rect.height *
+
+            GRID_ROWS
+
+        );
+
+
+    if (
+        !inBounds(
+            x,
+            y
+        )
+    ) {
+
+        return null;
+
+    }
+
+
+    return {
+        x,
+        y
+    };
+
 }
 
 
 // =====================================================
-// BUILDING
+// TOOL SYSTEM
 // =====================================================
 
-function selectTool(tool) {
+function selectTool(
+    tool
+) {
 
-    selectedTool = tool;
+    if (
+        !BUILD_DEFINITIONS[
+            tool
+        ]
+    ) {
+
+        return;
+
+    }
+
+
+    selectedTool =
+        tool;
+
 
     updateToolUI();
+
+
+    playSound(
+        "click"
+    );
+
 }
 
 
@@ -1245,75 +2796,85 @@ function updateToolUI() {
         button => {
 
             button.classList.toggle(
+
                 "selected",
+
                 button.dataset.tool ===
                 selectedTool
+
             );
+
         }
     );
+
 
     selectedToolText.textContent =
         BUILD_DEFINITIONS[
             selectedTool
-        ]?.name || selectedTool;
+        ]?.name ||
+        selectedTool;
+
 
     selectedDirection.textContent =
         DIRECTIONS[
             direction
         ].symbol;
+
 }
 
 
 function rotateDirection() {
 
     direction =
-        (direction + 1) % 4;
+        (
+            direction +
+            1
+        ) %
+        4;
+
 
     updateToolUI();
 
-    playSound("click");
+
+    playSound(
+        "click"
+    );
+
 }
 
 
-function handleCanvasClick(event) {
+// =====================================================
+// FACTORY CLICK
+// =====================================================
+
+function handleCanvasClick(
+    event
+) {
 
     if (
         !state ||
         paused
     ) {
+
         return;
+
     }
 
-    const rect =
-        canvas.getBoundingClientRect();
 
-    const scaleX =
-        GRID_COLUMNS /
-        rect.width;
-
-    const scaleY =
-        GRID_ROWS /
-        rect.height;
-
-    const x =
-        Math.floor(
-            (
-                event.clientX -
-                rect.left
-            ) * scaleX
+    const point =
+        getCellFromPointer(
+            event
         );
 
-    const y =
-        Math.floor(
-            (
-                event.clientY -
-                rect.top
-            ) * scaleY
-        );
 
-    if (!inBounds(x, y)) {
+    if (
+        !point
+    ) {
+
         return;
+
     }
+
 
     if (
         selectedTool ===
@@ -1321,12 +2882,15 @@ function handleCanvasClick(event) {
     ) {
 
         interactWithCell(
-            x,
-            y
+            point.x,
+            point.y
         );
 
+
         return;
+
     }
+
 
     if (
         selectedTool ===
@@ -1334,20 +2898,32 @@ function handleCanvasClick(event) {
     ) {
 
         deleteCell(
-            x,
-            y
+            point.x,
+            point.y
         );
 
+
         return;
+
     }
 
+
     placeCell(
-        x,
-        y,
+
+        point.x,
+
+        point.y,
+
         selectedTool
+
     );
+
 }
 
+
+// =====================================================
+// PLACE BLOCK
+// =====================================================
 
 function placeCell(
     x,
@@ -1355,21 +2931,42 @@ function placeCell(
     type
 ) {
 
-    if (getCell(x, y)) {
+    if (
+        getCell(
+            x,
+            y
+        )
+    ) {
 
         showFactoryMessage(
-            "That factory tile is already occupied."
+            "That factory tile is occupied."
         );
 
+
+        playSound(
+            "error"
+        );
+
+
         return;
+
     }
+
 
     const definition =
-        BUILD_DEFINITIONS[type];
+        BUILD_DEFINITIONS[
+            type
+        ];
 
-    if (!definition) {
+
+    if (
+        !definition
+    ) {
+
         return;
+
     }
+
 
     if (
         state.coins <
@@ -1377,95 +2974,175 @@ function placeCell(
     ) {
 
         showFactoryMessage(
-            "You do not have enough coins."
+            "Not enough coins."
         );
 
-        playSound("error");
+
+        playSound(
+            "error"
+        );
+
 
         return;
+
     }
+
 
     state.coins -=
         definition.cost;
 
-    const cell = {
-
-        type,
-
-        dir: direction,
-
-        timer: 0,
-
-        process: 0,
-
-        buffer: [],
-
-        splitToggle: false,
-
-        enabled:
-            type === "lever"
-                ? true
-                : undefined,
-
-        buttonUntil: 0
-    };
 
     setCell(
+
         x,
+
         y,
-        cell
+
+        {
+
+            type,
+
+            dir:
+                direction,
+
+            timer:
+                0,
+
+            process:
+                0,
+
+            buffer:
+                [],
+
+            splitToggle:
+                false,
+
+            enabled:
+                type ===
+                "lever"
+                    ? true
+                    : undefined,
+
+            buttonUntil:
+                0,
+
+            filter:
+                type ===
+                "sorter"
+                    ? "coal"
+                    : undefined
+
+        }
+
     );
 
+
     if (
-        MACHINE_TYPES.has(type)
+        MACHINE_TYPES.has(
+            type
+        )
     ) {
 
         state.statistics
             .machinesBuilt++;
+
     }
+
 
     computePowerNetwork();
 
+
     updateHUD();
 
-    playSound("place");
 
-    showFactoryMessage(
-        `${definition.name} built.`
+    playSound(
+        "place"
     );
+
+
+    if (
+        type ===
+        "sorter"
+    ) {
+
+        showFactoryMessage(
+            "Sorter built. Coal filter selected."
+        );
+
+    } else {
+
+        showFactoryMessage(
+            `${definition.name} built.`
+        );
+
+    }
+
 }
 
 
-function deleteCell(x, y) {
+// =====================================================
+// DELETE BLOCK
+// =====================================================
+
+function deleteCell(
+    x,
+    y
+) {
 
     const cell =
-        getCell(x, y);
-
-    if (!cell) {
-
-        showFactoryMessage(
-            "Nothing to remove here."
+        getCell(
+            x,
+            y
         );
 
+
+    if (
+        !cell
+    ) {
+
+        showFactoryMessage(
+            "Nothing to remove."
+        );
+
+
         return;
+
     }
 
-    const definition =
+
+    const cost =
         BUILD_DEFINITIONS[
             cell.type
-        ];
+        ]?.cost ||
+        0;
 
-    if (definition) {
 
-        const refund =
-            Math.floor(
-                definition.cost *
-                0.25
-            );
+    const refund =
+        Math.floor(
+            cost *
+            0.25
+        );
 
-        state.coins +=
-            refund;
-    }
+
+    state.coins +=
+        refund;
+
+
+    state.items =
+        state.items.filter(
+
+            item =>
+
+                !(
+                    item.x ===
+                    x &&
+
+                    item.y ===
+                    y
+                )
+
+        );
+
 
     setCell(
         x,
@@ -1473,29 +3150,27 @@ function deleteCell(x, y) {
         null
     );
 
-    state.items =
-        state.items.filter(
-            item =>
-                !(
-                    item.x === x &&
-                    item.y === y
-                )
-        );
 
     computePowerNetwork();
 
+
     updateHUD();
 
-    playSound("delete");
+
+    playSound(
+        "delete"
+    );
+
 
     showFactoryMessage(
-        "Factory block removed."
+        `Block removed. ${refund} coins refunded.`
     );
+
 }
 
 
 // =====================================================
-// INTERACTION
+// INTERACT
 // =====================================================
 
 function interactWithCell(
@@ -1504,16 +3179,27 @@ function interactWithCell(
 ) {
 
     const cell =
-        getCell(x, y);
-
-    if (!cell) {
-
-        showFactoryMessage(
-            "Select a factory block or power switch."
+        getCell(
+            x,
+            y
         );
 
+
+    if (
+        !cell
+    ) {
+
+        showFactoryMessage(
+            "Nothing to interact with."
+        );
+
+
         return;
+
     }
+
+
+    // Lever
 
     if (
         cell.type ===
@@ -1523,18 +3209,33 @@ function interactWithCell(
         cell.enabled =
             !cell.enabled;
 
+
         computePowerNetwork();
 
-        playSound("switch");
+
+        updateHUD();
+
+
+        playSound(
+            "switch"
+        );
+
 
         showFactoryMessage(
+
             cell.enabled
                 ? "Lever switched ON."
                 : "Lever switched OFF."
+
         );
 
+
         return;
+
     }
+
+
+    // Button
 
     if (
         cell.type ===
@@ -1545,16 +3246,82 @@ function interactWithCell(
             Date.now() +
             5000;
 
+
         computePowerNetwork();
 
-        playSound("switch");
+
+        updateHUD();
+
+
+        playSound(
+            "switch"
+        );
+
 
         showFactoryMessage(
             "Button powered for 5 seconds."
         );
 
+
         return;
+
     }
+
+
+    // Sorter
+
+    if (
+        cell.type ===
+        "sorter"
+    ) {
+
+        let filterIndex =
+            SORTER_FILTERS.indexOf(
+                cell.filter
+            );
+
+
+        if (
+            filterIndex <
+            0
+        ) {
+
+            filterIndex =
+                0;
+
+        }
+
+
+        filterIndex =
+            (
+                filterIndex +
+                1
+            ) %
+            SORTER_FILTERS.length;
+
+
+        cell.filter =
+            SORTER_FILTERS[
+                filterIndex
+            ];
+
+
+        playSound(
+            "switch"
+        );
+
+
+        showFactoryMessage(
+
+            `Sorter filter: ${RESOURCES[cell.filter].name}. Matching items turn right.`
+
+        );
+
+
+        return;
+
+    }
+
 
     if (
         MACHINE_TYPES.has(
@@ -1562,25 +3329,39 @@ function interactWithCell(
         )
     ) {
 
-        const status =
-            POWERED_MACHINE_TYPES.has(
+        const powered =
+
+            !POWERED_MACHINE_TYPES.has(
                 cell.type
-            )
-                ? (
-                    poweredMachines.has(
-                        getIndex(x, y)
-                    )
-                        ? "POWERED"
-                        : "NO POWER"
+            ) ||
+
+            poweredMachines.has(
+                getIndex(
+                    x,
+                    y
                 )
-                : "READY";
+            );
+
+
+        const bufferCount =
+            Array.isArray(
+                cell.buffer
+            )
+                ? cell.buffer.length
+                : 0;
+
 
         showFactoryMessage(
-            `${BUILD_DEFINITIONS[cell.type].name}: ${status}`
+
+            `${BUILD_DEFINITIONS[cell.type].name} • ${powered ? "READY" : "NO POWER"} • Buffer ${bufferCount}/5`
+
         );
 
+
         return;
+
     }
+
 
     showFactoryMessage(
         BUILD_DEFINITIONS[
@@ -1588,6 +3369,62 @@ function interactWithCell(
         ]?.name ||
         "Factory block"
     );
+
+}
+
+
+// =====================================================
+// POWER SOURCES
+// =====================================================
+
+function isSourceActive(
+    cell
+) {
+
+    if (
+        !cell
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        cell.type ===
+        "torch"
+    ) {
+
+        return true;
+
+    }
+
+
+    if (
+        cell.type ===
+        "lever"
+    ) {
+
+        return !!cell.enabled;
+
+    }
+
+
+    if (
+        cell.type ===
+        "button"
+    ) {
+
+        return (
+            cell.buttonUntil >
+            Date.now()
+        );
+
+    }
+
+
+    return false;
+
 }
 
 
@@ -1595,59 +3432,45 @@ function interactWithCell(
 // POWER NETWORK
 // =====================================================
 
-function isSourceActive(cell) {
-
-    if (!cell) {
-        return false;
-    }
-
-    if (
-        cell.type ===
-        "torch"
-    ) {
-        return true;
-    }
-
-    if (
-        cell.type ===
-        "lever"
-    ) {
-        return !!cell.enabled;
-    }
-
-    if (
-        cell.type ===
-        "button"
-    ) {
-        return (
-            cell.buttonUntil >
-            Date.now()
-        );
-    }
-
-    return false;
-}
-
-
 function computePowerNetwork() {
 
-    if (!state) {
+    if (
+        !state
+    ) {
+
         return;
+
     }
 
-    poweredMachines =
-        new Set();
 
     poweredNetwork =
         new Set();
 
-    const queue = [];
+
+    poweredMachines =
+        new Set();
+
+
+    activePowerSources =
+        0;
+
+
+    const queue =
+        [];
+
 
     const bestSignal =
         new Map();
 
+
+    const candidateMachines =
+        new Set();
+
+
     const baseSignal =
+
         9 +
+
         state.upgrades.power *
         4;
 
@@ -1665,41 +3488,67 @@ function computePowerNetwork() {
         ) {
 
             const cell =
-                getCell(x, y);
+                getCell(
+                    x,
+                    y
+                );
+
 
             if (
-                isSourceActive(cell)
+                !isSourceActive(
+                    cell
+                )
             ) {
 
-                const index =
-                    getIndex(x, y);
+                continue;
 
-                queue.push({
-                    x,
-                    y,
-                    signal:
-                        baseSignal
-                });
-
-                bestSignal.set(
-                    index,
-                    baseSignal
-                );
-
-                poweredNetwork.add(
-                    index
-                );
             }
+
+
+            activePowerSources++;
+
+
+            const index =
+                getIndex(
+                    x,
+                    y
+                );
+
+
+            queue.push({
+
+                x,
+
+                y,
+
+                signal:
+                    baseSignal
+
+            });
+
+
+            bestSignal.set(
+                index,
+                baseSignal
+            );
+
+
+            poweredNetwork.add(
+                index
+            );
+
         }
+
     }
 
 
     while (
-        queue.length > 0
+        queue.length
     ) {
 
         const node =
             queue.shift();
+
 
         for (
             const offset of
@@ -1710,26 +3559,48 @@ function computePowerNetwork() {
                 node.x +
                 offset.x;
 
+
             const ny =
                 node.y +
                 offset.y;
 
+
             if (
-                !inBounds(nx, ny)
+                !inBounds(
+                    nx,
+                    ny
+                )
             ) {
+
                 continue;
+
             }
+
 
             const cell =
-                getCell(nx, ny);
+                getCell(
+                    nx,
+                    ny
+                );
 
-            if (!cell) {
+
+            if (
+                !cell
+            ) {
+
                 continue;
+
             }
 
-            const index =
-                getIndex(nx, ny);
 
+            const index =
+                getIndex(
+                    nx,
+                    ny
+                );
+
+
+            // Powered machine beside network.
 
             if (
                 POWERED_MACHINE_TYPES.has(
@@ -1737,25 +3608,38 @@ function computePowerNetwork() {
                 )
             ) {
 
-                poweredMachines.add(
+                candidateMachines.add(
                     index
                 );
 
+
                 continue;
+
             }
 
 
             if (
-                cell.type !== "wire" &&
-                cell.type !== "repeater" &&
-                !isSourceActive(cell)
+
+                cell.type !==
+                "wire" &&
+
+                cell.type !==
+                "repeater" &&
+
+                !isSourceActive(
+                    cell
+                )
+
             ) {
+
                 continue;
+
             }
 
 
             let nextSignal =
-                node.signal - 1;
+                node.signal -
+                1;
 
 
             if (
@@ -1765,32 +3649,44 @@ function computePowerNetwork() {
 
                 nextSignal =
                     Math.max(
+
                         nextSignal,
+
                         7 +
+
                         state.upgrades.power *
                         2
+
                     );
+
             }
-
-
-            if (
-                nextSignal <= 0
-            ) {
-                continue;
-            }
-
-
-            const oldSignal =
-                bestSignal.get(
-                    index
-                ) || -1;
 
 
             if (
                 nextSignal <=
-                oldSignal
+                0
             ) {
+
                 continue;
+
+            }
+
+
+            const previousSignal =
+
+                bestSignal.get(
+                    index
+                ) ??
+                -1;
+
+
+            if (
+                nextSignal <=
+                previousSignal
+            ) {
+
+                continue;
+
             }
 
 
@@ -1799,27 +3695,76 @@ function computePowerNetwork() {
                 nextSignal
             );
 
+
             poweredNetwork.add(
                 index
             );
 
 
             queue.push({
-                x: nx,
-                y: ny,
+
+                x:
+                    nx,
+
+                y:
+                    ny,
+
                 signal:
                     nextSignal
+
             });
+
         }
+
     }
+
+
+    const maxMachines =
+
+        activePowerSources *
+
+        (
+            10 +
+
+            state.upgrades.power *
+            5
+        );
+
+
+    const machines =
+        [
+            ...candidateMachines
+        ];
+
+
+    for (
+        let i = 0;
+        i <
+        Math.min(
+            machines.length,
+            maxMachines
+        );
+        i++
+    ) {
+
+        poweredMachines.add(
+            machines[
+                i
+            ]
+        );
+
+    }
+
 }
 
 
 // =====================================================
-// MACHINE PROCESSING
+// MACHINE UPDATE
 // =====================================================
 
-function updateMachines(dt) {
+function updateMachines(
+    dt
+) {
 
     for (
         let y = 0;
@@ -1834,10 +3779,18 @@ function updateMachines(dt) {
         ) {
 
             const cell =
-                getCell(x, y);
+                getCell(
+                    x,
+                    y
+                );
 
-            if (!cell) {
+
+            if (
+                !cell
+            ) {
+
                 continue;
+
             }
 
 
@@ -1847,36 +3800,57 @@ function updateMachines(dt) {
             ) {
 
                 updateMiner(
+
                     x,
+
                     y,
+
                     cell,
+
                     dt
+
                 );
 
+
                 continue;
+
             }
 
 
             if (
-                cell.type ===
-                "crusher" ||
-                cell.type ===
-                "smelter" ||
-                cell.type ===
-                "crafter"
+                [
+                    "crusher",
+                    "smelter",
+                    "crafter"
+                ].includes(
+                    cell.type
+                )
             ) {
 
                 updateProcessor(
+
                     x,
+
                     y,
+
                     cell,
+
                     dt
+
                 );
+
             }
+
         }
+
     }
+
 }
 
+
+// =====================================================
+// MINER
+// =====================================================
 
 function updateMiner(
     x,
@@ -1887,59 +3861,91 @@ function updateMiner(
 
     if (
         !poweredMachines.has(
-            getIndex(x, y)
+            getIndex(
+                x,
+                y
+            )
         )
     ) {
+
         return;
+
     }
 
-    const speedMultiplier =
-        1 +
-        state.upgrades
-            .minerSpeed *
-        0.25;
 
-    cell.timer +=
-        dt *
-        speedMultiplier;
-
-    const interval =
-        4.2;
-
-
-    if (
-        cell.timer <
-        interval
-    ) {
-        return;
-    }
-
-    cell.timer = 0;
-
+    // Prevent pile-up inside miner.
 
     if (
         countItemsAt(
             x,
             y
-        ) >= 2
+        ) >=
+        1
     ) {
+
         return;
+
     }
 
 
-    const resource =
-        getRandomMinedResource();
+    const speed =
+
+        1 +
+
+        state.upgrades
+            .minerSpeed *
+        0.25;
+
+
+    cell.timer +=
+        dt *
+        speed;
+
+
+    if (
+        cell.timer <
+        4.2
+    ) {
+
+        return;
+
+    }
+
+
+    cell.timer =
+        0;
+
 
     spawnItem(
-        resource,
+
+        getRandomMinedResource(),
+
         x,
+
         y,
+
         cell.dir
+
     );
 
-    playSound("machine");
+
+    createMachineEffects(
+        x,
+        y,
+        "miner"
+    );
+
+
+    playSound(
+        "machine"
+    );
+
 }
 
+
+// =====================================================
+// PROCESSING MACHINES
+// =====================================================
 
 function updateProcessor(
     x,
@@ -1950,140 +3956,184 @@ function updateProcessor(
 
     if (
         !poweredMachines.has(
-            getIndex(x, y)
+            getIndex(
+                x,
+                y
+            )
         )
     ) {
+
         return;
+
     }
+
 
     if (
-        !cell.buffer ||
-        cell.buffer.length === 0
+        !Array.isArray(
+            cell.buffer
+        )
     ) {
 
-        cell.process = 0;
+        cell.buffer =
+            [];
 
-        return;
     }
 
 
-    const speedMultiplier =
+    if (
+        !cell.buffer.length
+    ) {
+
+        cell.process =
+            0;
+
+
+        return;
+
+    }
+
+
+    if (
+        countItemsAt(
+            x,
+            y
+        ) >=
+        1
+    ) {
+
+        return;
+
+    }
+
+
+    const speed =
+
         1 +
+
         state.upgrades
             .production *
-        0.2;
+        0.20;
 
 
     cell.process +=
         dt *
-        speedMultiplier;
-
-
-    const processTime =
-        getMachineProcessTime(
-            cell.type
-        );
+        speed;
 
 
     if (
         cell.process <
-        processTime
+        getMachineProcessTime(
+            cell.type
+        )
     ) {
+
         return;
+
     }
 
 
-    cell.process = 0;
+    cell.process =
+        0;
+
 
     const input =
         cell.buffer.shift();
 
+
     const output =
+
         transformResource(
             cell.type,
             input
-        );
-
-
-    if (!output) {
-        return;
-    }
+        ) ||
+        input;
 
 
     spawnItem(
+
         output,
+
         x,
+
         y,
+
         cell.dir
+
     );
-
-
-    state.statistics
-        .itemsProduced++;
 
 
     if (
-        RESOURCES[
-            output
-        ]?.product
+        output !==
+        input
     ) {
 
-        productionTimes.push(
-            performance.now()
+        state.statistics
+            .itemsProduced++;
+
+
+        createMachineEffects(
+            x,
+            y,
+            cell.type
         );
+
+
+        playSound(
+
+            cell.type ===
+            "crafter"
+                ? "craft"
+                : "machine"
+
+        );
+
     }
 
-
-    createMachineEffects(
-        x,
-        y,
-        cell.type
-    );
-
-
-    playSound(
-        cell.type ===
-        "crafter"
-            ? "craft"
-            : "machine"
-    );
 }
 
 
-// =====================================================
-// MACHINE RECIPES
-// =====================================================
-
-function getMachineProcessTime(type) {
+function getMachineProcessTime(
+    type
+) {
 
     if (
         type ===
         "crusher"
     ) {
+
         return 2.8;
+
     }
+
 
     if (
         type ===
         "smelter"
     ) {
+
         return 3.5;
+
     }
+
 
     if (
         type ===
         "crafter"
     ) {
+
         return 4;
+
     }
 
+
     return 3;
+
 }
 
 
 function transformResource(
     machine,
-    input
+    resource
 ) {
 
     if (
@@ -2093,9 +4143,11 @@ function transformResource(
 
         return (
             CRUSHER_RECIPES[
-                input
-            ] || null
+                resource
+            ] ||
+            null
         );
+
     }
 
 
@@ -2106,9 +4158,11 @@ function transformResource(
 
         return (
             SMELTER_RECIPES[
-                input
-            ] || null
+                resource
+            ] ||
+            null
         );
+
     }
 
 
@@ -2119,60 +4173,21 @@ function transformResource(
 
         return (
             CRAFTER_RECIPES[
-                input
-            ] || null
+                resource
+            ] ||
+            null
         );
+
     }
 
 
     return null;
-}
 
-
-function machineAccepts(
-    machine,
-    resource
-) {
-
-    if (
-        machine ===
-        "crusher"
-    ) {
-
-        return !!CRUSHER_RECIPES[
-            resource
-        ];
-    }
-
-
-    if (
-        machine ===
-        "smelter"
-    ) {
-
-        return !!SMELTER_RECIPES[
-            resource
-        ];
-    }
-
-
-    if (
-        machine ===
-        "crafter"
-    ) {
-
-        return !!CRAFTER_RECIPES[
-            resource
-        ];
-    }
-
-
-    return false;
 }
 
 
 // =====================================================
-// MINING
+// RANDOM MINING
 // =====================================================
 
 function getRandomMinedResource() {
@@ -2180,39 +4195,89 @@ function getRandomMinedResource() {
     const roll =
         Math.random();
 
-    if (roll < 0.22) {
+
+    if (
+        roll <
+        0.20
+    ) {
+
         return "coal";
+
     }
 
-    if (roll < 0.45) {
+
+    if (
+        roll <
+        0.44
+    ) {
+
         return "iron_ore";
+
     }
 
-    if (roll < 0.59) {
+
+    if (
+        roll <
+        0.60
+    ) {
+
         return "copper_ore";
+
     }
 
-    if (roll < 0.70) {
+
+    if (
+        roll <
+        0.71
+    ) {
+
         return "redstone";
+
     }
 
-    if (roll < 0.79) {
+
+    if (
+        roll <
+        0.81
+    ) {
+
         return "gold_ore";
+
     }
 
-    if (roll < 0.86) {
+
+    if (
+        roll <
+        0.88
+    ) {
+
         return "quartz";
+
     }
 
-    if (roll < 0.92) {
+
+    if (
+        roll <
+        0.93
+    ) {
+
         return "emerald";
+
     }
 
-    if (roll < 0.975) {
+
+    if (
+        roll <
+        0.98
+    ) {
+
         return "diamond";
+
     }
+
 
     return "netherite_scrap";
+
 }
 
 
@@ -2227,6 +4292,27 @@ function spawnItem(
     itemDirection
 ) {
 
+    if (
+        !RESOURCES[
+            resource
+        ]
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        state.items.length >=
+        MAX_WORLD_ITEMS
+    ) {
+
+        return false;
+
+    }
+
+
     state.items.push({
 
         resource,
@@ -2238,11 +4324,17 @@ function spawnItem(
         dir:
             itemDirection,
 
-        progress: 0,
+        progress:
+            0,
 
-        remove: false
+        remove:
+            false
 
     });
+
+
+    return true;
+
 }
 
 
@@ -2252,24 +4344,41 @@ function countItemsAt(
 ) {
 
     return state.items.filter(
+
         item =>
+
             !item.remove &&
-            item.x === x &&
-            item.y === y
+
+            item.x ===
+            x &&
+
+            item.y ===
+            y
+
     ).length;
+
 }
 
 
-function updateItems(dt) {
+// =====================================================
+// ITEM MOVEMENT
+// =====================================================
+
+function updateItems(
+    dt
+) {
 
     const beltSpeed =
+
         1.2 +
+
         state.upgrades
             .beltSpeed *
         0.32;
 
 
-    let movingItems = 0;
+    let movingItems =
+        0;
 
 
     for (
@@ -2277,25 +4386,34 @@ function updateItems(dt) {
         state.items
     ) {
 
-        if (item.remove) {
+        if (
+            item.remove
+        ) {
+
             continue;
+
         }
+
 
         item.progress +=
             dt *
             beltSpeed;
 
+
         movingItems++;
 
 
         if (
-            item.progress >= 1
+            item.progress >=
+            1
         ) {
 
             attemptItemTransfer(
                 item
             );
+
         }
+
     }
 
 
@@ -2311,28 +4429,171 @@ function updateItems(dt) {
 
 
     if (
-        movingItems > 0 &&
-        conveyorSoundTimer <= 0
+        movingItems >
+        0 &&
+        conveyorSoundTimer <=
+        0
     ) {
 
-        playSound("conveyor");
+        playSound(
+            "conveyor"
+        );
+
 
         conveyorSoundTimer =
             2.2;
+
     }
+
 }
 
 
-function attemptItemTransfer(item) {
+// =====================================================
+// ITEM RECEIVERS
+// =====================================================
+
+function canReceiveItem(
+    cell
+) {
+
+    if (
+        !cell
+    ) {
+
+        return false;
+
+    }
+
+
+    return [
+
+        "belt",
+        "splitBelt",
+        "sorter",
+        "chest",
+        "crusher",
+        "smelter",
+        "crafter"
+
+    ].includes(
+        cell.type
+    );
+
+}
+
+
+// =====================================================
+// SPLITTER
+// =====================================================
+
+function chooseSplitterDirection(
+    x,
+    y,
+    cell
+) {
+
+    const firstDirection =
+
+        cell.splitToggle
+
+            ? cell.dir
+
+            : (
+                cell.dir +
+                1
+            ) %
+            4;
+
+
+    const secondDirection =
+
+        cell.splitToggle
+
+            ? (
+                cell.dir +
+                1
+            ) %
+            4
+
+            : cell.dir;
+
+
+    const candidates = [
+
+        firstDirection,
+
+        secondDirection
+
+    ];
+
+
+    for (
+        const candidate of
+        candidates
+    ) {
+
+        const vector =
+            DIRECTIONS[
+                candidate
+            ];
+
+
+        const nextCell =
+            getCell(
+
+                x +
+                vector.x,
+
+                y +
+                vector.y
+
+            );
+
+
+        if (
+            canReceiveItem(
+                nextCell
+            )
+        ) {
+
+            cell.splitToggle =
+                !cell.splitToggle;
+
+
+            return candidate;
+
+        }
+
+    }
+
+
+    cell.splitToggle =
+        !cell.splitToggle;
+
+
+    return firstDirection;
+
+}
+
+
+// =====================================================
+// ITEM TRANSFER
+// =====================================================
+
+function attemptItemTransfer(
+    item
+) {
 
     const vector =
         DIRECTIONS[
             item.dir
         ];
 
+
     const nx =
         item.x +
         vector.x;
+
 
     const ny =
         item.y +
@@ -2340,72 +4601,106 @@ function attemptItemTransfer(item) {
 
 
     if (
-        !inBounds(nx, ny)
+        !inBounds(
+            nx,
+            ny
+        )
     ) {
 
         item.progress =
             0.98;
 
+
         return;
+
     }
 
 
     const target =
-        getCell(nx, ny);
+        getCell(
+            nx,
+            ny
+        );
 
 
-    if (!target) {
+    if (
+        !target
+    ) {
 
         item.progress =
             0.98;
 
+
         return;
+
     }
 
+
+    // Conveyor
 
     if (
         target.type ===
         "belt"
     ) {
 
-        item.x = nx;
-        item.y = ny;
+        item.x =
+            nx;
+
+
+        item.y =
+            ny;
+
 
         item.dir =
             target.dir;
 
-        item.progress = 0;
+
+        item.progress =
+            0;
+
 
         return;
+
     }
 
+
+    // Splitter
 
     if (
         target.type ===
         "splitBelt"
     ) {
 
-        item.x = nx;
-        item.y = ny;
+        item.x =
+            nx;
+
+
+        item.y =
+            ny;
 
 
         item.dir =
-            target.splitToggle
-                ? target.dir
-                : (
-                    target.dir + 1
-                ) % 4;
+            chooseSplitterDirection(
+
+                nx,
+
+                ny,
+
+                target
+
+            );
 
 
-        target.splitToggle =
-            !target.splitToggle;
+        item.progress =
+            0;
 
-
-        item.progress = 0;
 
         return;
+
     }
 
+
+    // Sorter
 
     if (
         target.type ===
@@ -2414,36 +4709,55 @@ function attemptItemTransfer(item) {
 
         if (
             !poweredMachines.has(
-                getIndex(nx, ny)
+                getIndex(
+                    nx,
+                    ny
+                )
             )
         ) {
 
             item.progress =
                 0.98;
 
+
             return;
+
         }
 
 
-        item.x = nx;
-        item.y = ny;
+        item.x =
+            nx;
 
+
+        item.y =
+            ny;
+
+
+        // Matching item turns right.
 
         item.dir =
-            RARE_RESOURCES.has(
-                item.resource
-            )
+            item.resource ===
+            target.filter
+
                 ? (
-                    target.dir + 1
-                ) % 4
+                    target.dir +
+                    1
+                ) %
+                4
+
                 : target.dir;
 
 
-        item.progress = 0;
+        item.progress =
+            0;
+
 
         return;
+
     }
 
+
+    // Chest
 
     if (
         target.type ===
@@ -2459,38 +4773,45 @@ function attemptItemTransfer(item) {
             item.remove =
                 true;
 
-            playSound("storage");
+
+            playSound(
+                "storage"
+            );
 
         } else {
 
             item.progress =
                 0.98;
+
         }
 
+
         return;
+
     }
 
 
+    // Processor
+
     if (
-        target.type ===
-        "crusher" ||
-        target.type ===
-        "smelter" ||
-        target.type ===
-        "crafter"
+        [
+            "crusher",
+            "smelter",
+            "crafter"
+        ].includes(
+            target.type
+        )
     ) {
 
         if (
-            !machineAccepts(
-                target.type,
-                item.resource
+            !Array.isArray(
+                target.buffer
             )
         ) {
 
-            item.progress =
-                0.98;
+            target.buffer =
+                [];
 
-            return;
         }
 
 
@@ -2502,7 +4823,9 @@ function attemptItemTransfer(item) {
             item.progress =
                 0.98;
 
+
             return;
+
         }
 
 
@@ -2510,15 +4833,19 @@ function attemptItemTransfer(item) {
             item.resource
         );
 
+
         item.remove =
             true;
 
+
         return;
+
     }
 
 
     item.progress =
         0.98;
+
 }
 
 
@@ -2526,13 +4853,36 @@ function attemptItemTransfer(item) {
 // STORAGE
 // =====================================================
 
+function getChestCount() {
+
+    return state.cells.filter(
+        cell =>
+            cell?.type ===
+            "chest"
+    ).length;
+
+}
+
+
 function getStorageCapacity() {
 
+    const chests =
+        getChestCount();
+
+
     return (
-        100 +
-        state.upgrades.storage *
-        100
+
+        chests *
+
+        (
+            100 +
+
+            state.upgrades.storage *
+            100
+        )
+
     );
+
 }
 
 
@@ -2541,29 +4891,70 @@ function getStorageUsed() {
     return Object.values(
         state.inventory
     ).reduce(
+
         (
             total,
             count
         ) =>
+
             total +
-            count,
+
+            Math.max(
+                0,
+                Number(
+                    count
+                ) ||
+                0
+            ),
+
         0
+
     );
+
 }
 
 
-function addToStorage(resource) {
+function addToStorage(
+    resource
+) {
+
+    if (
+        !RESOURCES[
+            resource
+        ]
+    ) {
+
+        return false;
+
+    }
+
+
+    const capacity =
+        getStorageCapacity();
+
+
+    if (
+        capacity <=
+        0
+    ) {
+
+        return false;
+
+    }
+
 
     if (
         getStorageUsed() >=
-        getStorageCapacity()
+        capacity
     ) {
 
         showFactoryMessage(
             "Storage is full."
         );
 
+
         return false;
+
     }
 
 
@@ -2573,59 +4964,142 @@ function addToStorage(resource) {
         (
             state.inventory[
                 resource
-            ] || 0
-        ) + 1;
+            ] ||
+            0
+        ) +
+        1;
+
+
+    productionTimes.push(
+        performance.now()
+    );
 
 
     return true;
+
 }
 
 
 // =====================================================
-// INVENTORY UI
+// INVENTORY
 // =====================================================
 
 function openInventory() {
 
     renderInventory();
 
+
     openPanel(
         inventoryPanel
     );
+
 }
 
 
 function renderInventory() {
 
+    if (
+        !state ||
+        !inventoryList
+    ) {
+
+        return;
+
+    }
+
+
     inventoryList.innerHTML =
         "";
+
+
+    const used =
+        getStorageUsed();
+
+
+    const capacity =
+        getStorageCapacity();
+
+
+    const chestCount =
+        getChestCount();
+
+
+    inventoryCapacityText.textContent =
+
+        `${used} / ${capacity} USED • ${chestCount} CHEST${chestCount === 1 ? "" : "S"}`;
 
 
     const entries =
         Object.entries(
             state.inventory
-        ).filter(
-            ([, count]) =>
-                count > 0
-        );
+        )
+
+            .filter(
+                (
+                    [
+                        resource,
+                        count
+                    ]
+                ) =>
+
+                    RESOURCES[
+                        resource
+                    ] &&
+
+                    Number(
+                        count
+                    ) >
+                    0
+            )
+
+            .sort(
+                (
+                    a,
+                    b
+                ) =>
+
+                    RESOURCES[
+                        a[0]
+                    ].name.localeCompare(
+
+                        RESOURCES[
+                            b[0]
+                        ].name
+
+                    )
+            );
+
+
+    inventorySellAllBtn.disabled =
+        entries.length ===
+        0;
 
 
     if (
-        entries.length === 0
+        !entries.length
     ) {
 
         inventoryList.innerHTML = `
-            <p style="
-                color:#9eaea3;
-                grid-column:1/-1;
-                text-align:center;
-                padding:25px;
-            ">
-                Your storage is empty.
-            </p>
+
+            <div class="inventory-empty">
+
+                <h3>
+                    Storage Empty
+                </h3>
+
+                <p>
+                    Resources will appear here after
+                    conveyor belts deliver them into
+                    a Storage Chest.
+                </p>
+
+            </div>
+
         `;
 
+
         return;
+
     }
 
 
@@ -2641,107 +5115,224 @@ function renderInventory() {
                 resource
             ];
 
-        if (!info) {
-            continue;
-        }
 
-
-        const item =
+        const card =
             document.createElement(
-                "div"
+                "article"
             );
 
-        item.className =
-            "inventory-item";
+
+        card.className =
+            "resource-inventory-card";
 
 
-        item.innerHTML = `
+        card.innerHTML = `
 
-            <div class="inventory-item-top">
+            <div class="resource-card-top">
 
-                <span class="inventory-icon">
-                    ${info.icon}
+
+                <div
+                    class="resource-cube"
+                    style="
+                        --resource-color:${info.color};
+                        --resource-light:${info.light};
+                    "
+                >
+
+                    <span></span>
+
+                </div>
+
+
+                <div class="resource-card-count">
+
+                    <small>
+                        STORED
+                    </small>
+
+                    <strong>
+                        ${formatNumber(count)}
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="resource-card-info">
+
+                <h3>
+                    ${info.name}
+                </h3>
+
+
+                <span class="${
+                    info.product
+                        ? "inventory-product-badge"
+                        : "inventory-resource-badge"
+                }">
+
+                    ${
+                        info.product
+                            ? "PRODUCT"
+                            : "RESOURCE"
+                    }
+
                 </span>
 
-                <strong class="inventory-count">
-                    ${count}
+            </div>
+
+
+            <div class="resource-card-footer">
+
+                <span>
+                    Value Each
+                </span>
+
+                <strong>
+                    ${formatNumber(info.value)} coins
                 </strong>
 
             </div>
 
-            <p class="inventory-name">
-                ${info.name}
-            </p>
+
+            <div class="inventory-card-actions">
+
+
+                <button
+                    class="inventory-sell-btn"
+                    data-inventory-sell="${resource}"
+                    type="button"
+                >
+
+                    Sell ${formatNumber(count)}
+
+                </button>
+
+
+                <button
+                    class="inventory-trash-btn"
+                    data-inventory-trash="${resource}"
+                    type="button"
+                >
+
+                    Trash
+
+                </button>
+
+
+            </div>
 
         `;
 
 
         inventoryList.appendChild(
-            item
+            card
         );
+
     }
+
+
+    inventoryList
+        .querySelectorAll(
+            "[data-inventory-sell]"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        sellInventoryResource(
+                            button.dataset
+                                .inventorySell
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+    inventoryList
+        .querySelectorAll(
+            "[data-inventory-trash]"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        trashInventoryResource(
+                            button.dataset
+                                .inventoryTrash
+                        );
+
+                    }
+                );
+
+            }
+        );
+
 }
 
 
 // =====================================================
-// SELLING
+// SELL ONE RESOURCE
 // =====================================================
 
-function sellProducts() {
+function sellInventoryResource(
+    resource
+) {
 
-    let earned = 0;
-
-    let sold = 0;
-
-
-    for (
-        const [
-            resource,
-            count
-        ] of
-        Object.entries(
-            state.inventory
-        )
-    ) {
-
-        const info =
-            RESOURCES[
-                resource
-            ];
-
-        if (
-            !info ||
-            !info.product ||
-            count <= 0
-        ) {
-            continue;
-        }
-
-
-        earned +=
-            info.value *
-            count;
-
-        sold += count;
-
-        state.inventory[
+    const info =
+        RESOURCES[
             resource
-        ] = 0;
-    }
+        ];
+
+
+    const count =
+        Math.max(
+
+            0,
+
+            Math.floor(
+                Number(
+                    state.inventory[
+                        resource
+                    ]
+                ) ||
+                0
+            )
+
+        );
 
 
     if (
-        earned <= 0
+        !info ||
+        count <=
+        0
     ) {
 
-        showFactoryMessage(
-            "No finished products to sell."
-        );
-
-        playSound("error");
-
         return;
+
     }
+
+
+    const earned =
+        count *
+        info.value;
+
+
+    state.inventory[
+        resource
+    ] =
+        0;
 
 
     state.coins +=
@@ -2753,17 +5344,237 @@ function sellProducts() {
         earned;
 
 
-    playSound("sell");
+    playSound(
+        "sell"
+    );
 
 
     showFactoryMessage(
-        `Sold ${sold} products for ${formatNumber(earned)} coins!`
+
+        `Sold ${count} ${info.name} for ${formatNumber(earned)} coins.`
+
     );
 
 
     updateHUD();
 
+
     renderInventory();
+
+
+    saveGame();
+
+}
+
+
+// =====================================================
+// TRASH RESOURCE
+// =====================================================
+
+async function trashInventoryResource(
+    resource
+) {
+
+    const info =
+        RESOURCES[
+            resource
+        ];
+
+
+    const count =
+        Math.max(
+
+            0,
+
+            Math.floor(
+                Number(
+                    state.inventory[
+                        resource
+                    ]
+                ) ||
+                0
+            )
+
+        );
+
+
+    if (
+        !info ||
+        count <=
+        0
+    ) {
+
+        return;
+
+    }
+
+
+    const remove =
+        await showConfirmation(
+
+            `Trash ${info.name}?`,
+
+            `This will permanently remove all ${count} stored ${info.name}. You will receive no coins.`,
+
+            "Move To Trash"
+
+        );
+
+
+    if (
+        !remove
+    ) {
+
+        return;
+
+    }
+
+
+    state.inventory[
+        resource
+    ] =
+        0;
+
+
+    playSound(
+        "delete"
+    );
+
+
+    showFactoryMessage(
+
+        `${count} ${info.name} moved to trash.`
+
+    );
+
+
+    updateHUD();
+
+
+    renderInventory();
+
+
+    saveGame();
+
+}
+
+
+// =====================================================
+// SELL ALL INVENTORY
+// =====================================================
+
+function sellAllInventoryProducts() {
+
+    let totalItems =
+        0;
+
+
+    let totalCoins =
+        0;
+
+
+    for (
+        const [
+            resource,
+            countValue
+        ] of Object.entries(
+            state.inventory
+        )
+    ) {
+
+        const info =
+            RESOURCES[
+                resource
+            ];
+
+
+        const count =
+            Math.max(
+
+                0,
+
+                Math.floor(
+                    Number(
+                        countValue
+                    ) ||
+                    0
+                )
+
+            );
+
+
+        if (
+            !info ||
+            count <=
+            0
+        ) {
+
+            continue;
+
+        }
+
+
+        totalItems +=
+            count;
+
+
+        totalCoins +=
+            count *
+            info.value;
+
+
+        state.inventory[
+            resource
+        ] =
+            0;
+
+    }
+
+
+    if (
+        totalItems <=
+        0
+    ) {
+
+        showFactoryMessage(
+            "Storage is empty."
+        );
+
+
+        return;
+
+    }
+
+
+    state.coins +=
+        totalCoins;
+
+
+    state.statistics
+        .coinsEarned +=
+        totalCoins;
+
+
+    playSound(
+        "sell"
+    );
+
+
+    showFactoryMessage(
+
+        `Sold all ${totalItems} stored items for ${formatNumber(totalCoins)} coins.`
+
+    );
+
+
+    updateHUD();
+
+
+    renderInventory();
+
+
+    saveGame();
+
 }
 
 
@@ -2771,73 +5582,73 @@ function sellProducts() {
 // UPGRADES
 // =====================================================
 
-const UPGRADE_BASE_COSTS = {
-
-    beltSpeed: 400,
-
-    minerSpeed: 450,
-
-    storage: 350,
-
-    power: 500,
-
-    production: 600
-
-};
-
-
-function getUpgradeCost(type) {
+function getUpgradeCost(
+    type
+) {
 
     const level =
         state.upgrades[
             type
-        ];
+        ] ||
+        0;
+
 
     return Math.floor(
+
         UPGRADE_BASE_COSTS[
             type
         ] *
+
         (
             1 +
             level *
             0.8
         )
+
     );
+
 }
 
 
-function buyUpgrade(type) {
+function buyUpgrade(
+    type
+) {
 
     if (
-        !Object.hasOwn(
-            state.upgrades,
-            type
-        )
+        !Object.prototype
+            .hasOwnProperty
+            .call(
+                state.upgrades,
+                type
+            )
     ) {
+
         return;
+
     }
 
 
-    const level =
+    if (
         state.upgrades[
             type
-        ];
-
-
-    if (
-        level >= 5
+        ] >=
+        5
     ) {
 
         showFactoryMessage(
-            "That upgrade is already at maximum level."
+            "That upgrade is already MAX."
         );
 
+
         return;
+
     }
 
 
     const cost =
-        getUpgradeCost(type);
+        getUpgradeCost(
+            type
+        );
 
 
     if (
@@ -2849,9 +5660,14 @@ function buyUpgrade(type) {
             "Not enough coins for this upgrade."
         );
 
-        playSound("error");
+
+        playSound(
+            "error"
+        );
+
 
         return;
+
     }
 
 
@@ -2866,37 +5682,54 @@ function buyUpgrade(type) {
 
     computePowerNetwork();
 
+
     updateUpgradesUI();
+
 
     updateHUD();
 
-    playSound("upgrade");
+
+    playSound(
+        "upgrade"
+    );
 
 
     showFactoryMessage(
-        "Factory upgrade purchased!"
+        "Factory upgraded."
     );
+
+
+    saveGame();
+
 }
 
 
 function updateUpgradesUI() {
 
-    if (!state) {
+    if (
+        !state
+    ) {
+
         return;
+
     }
 
 
     beltSpeedLevel.textContent =
         `Level ${state.upgrades.beltSpeed}`;
 
+
     minerSpeedLevel.textContent =
         `Level ${state.upgrades.minerSpeed}`;
+
 
     storageLevel.textContent =
         `Level ${state.upgrades.storage}`;
 
+
     powerLevel.textContent =
         `Level ${state.upgrades.power}`;
+
 
     productionLevel.textContent =
         `Level ${state.upgrades.production}`;
@@ -2909,35 +5742,46 @@ function updateUpgradesUI() {
                 button.dataset
                     .upgrade;
 
+
             const level =
                 state.upgrades[
                     type
                 ];
 
-            if (
-                level >= 5
-            ) {
 
-                button.textContent =
-                    "MAX LEVEL";
+            if (
+                level >=
+                5
+            ) {
 
                 button.disabled =
                     true;
 
-            } else {
-
-                button.disabled =
-                    false;
 
                 button.textContent =
-                    `Upgrade • ${formatNumber(
-                        getUpgradeCost(
-                            type
-                        )
-                    )} coins`;
+                    "MAX LEVEL";
+
+
+                return;
+
             }
+
+
+            button.disabled =
+                false;
+
+
+            button.textContent =
+
+                `Upgrade • ${formatNumber(
+                    getUpgradeCost(
+                        type
+                    )
+                )} coins`;
+
         }
     );
+
 }
 
 
@@ -2947,51 +5791,57 @@ function updateUpgradesUI() {
 
 function updateHUD() {
 
-    if (!state) {
+    if (
+        !state
+    ) {
+
         return;
+
     }
 
 
     coinsDisplay.textContent =
         formatNumber(
-            Math.floor(
-                state.coins
-            )
+            state.coins
         );
 
 
-    const activeSources =
-        countActivePowerSources();
+    const availablePower =
 
+        activePowerSources *
 
-    const powerAvailable =
-        activeSources *
         (
             100 +
+
             state.upgrades.power *
             50
         );
 
 
-    const powerUsed =
+    const usedPower =
+
         poweredMachines.size *
         10;
 
 
     powerDisplay.textContent =
-        `${powerUsed} / ${powerAvailable}`;
+
+        `${usedPower} / ${availablePower}`;
 
 
-    const currentTime =
+    const now =
         performance.now();
 
 
     productionTimes =
         productionTimes.filter(
+
             time =>
-                currentTime -
+
+                now -
                 time <
                 60000
+
         );
 
 
@@ -3000,6 +5850,7 @@ function updateHUD() {
 
 
     storageDisplay.textContent =
+
         `${getStorageUsed()} / ${getStorageCapacity()}`;
 
 
@@ -3018,37 +5869,24 @@ function updateHUD() {
 
     updateDayWeatherHUD();
 
+
     updateChallengeHUD();
+
 }
 
 
-function countActivePowerSources() {
-
-    let total = 0;
-
-
-    for (
-        const cell of
-        state.cells
-    ) {
-
-        if (
-            isSourceActive(cell)
-        ) {
-            total++;
-        }
-    }
-
-
-    return total;
-}
-
+// =====================================================
+// FACTORY EFFICIENCY
+// =====================================================
 
 function calculateEfficiency() {
 
-    let totalMachines = 0;
+    let totalMachines =
+        0;
 
-    let powered = 0;
+
+    let powered =
+        0;
 
 
     for (
@@ -3064,7 +5902,11 @@ function calculateEfficiency() {
         ) {
 
             const cell =
-                getCell(x, y);
+                getCell(
+                    x,
+                    y
+                );
+
 
             if (
                 !cell ||
@@ -3072,7 +5914,9 @@ function calculateEfficiency() {
                     cell.type
                 )
             ) {
+
                 continue;
+
             }
 
 
@@ -3081,19 +5925,29 @@ function calculateEfficiency() {
 
             if (
                 poweredMachines.has(
-                    getIndex(x, y)
+                    getIndex(
+                        x,
+                        y
+                    )
                 )
             ) {
+
                 powered++;
+
             }
+
         }
+
     }
 
 
     if (
-        totalMachines === 0
+        totalMachines ===
+        0
     ) {
+
         return 100;
+
     }
 
 
@@ -3119,15 +5973,27 @@ function calculateEfficiency() {
 
 
     return Math.max(
+
         0,
-        Math.round(
-            (
-                powerScore -
-                jamPenalty
-            ) *
-            100
+
+        Math.min(
+
+            100,
+
+            Math.round(
+
+                (
+                    powerScore -
+                    jamPenalty
+                ) *
+                100
+
+            )
+
         )
+
     );
+
 }
 
 
@@ -3135,7 +6001,9 @@ function calculateEfficiency() {
 // DAY / NIGHT
 // =====================================================
 
-function updateDayNight(dt) {
+function updateDayNight(
+    dt
+) {
 
     state.timeOfDay +=
         dt /
@@ -3143,40 +6011,42 @@ function updateDayNight(dt) {
 
 
     if (
-        state.timeOfDay >= 1
+        state.timeOfDay >=
+        1
     ) {
 
-        state.timeOfDay -= 1;
+        state.timeOfDay -=
+            1;
+
     }
+
 }
 
 
 function isNight() {
 
     return (
+
         state.timeOfDay >
         0.68 ||
+
         state.timeOfDay <
         0.18
+
     );
+
 }
 
 
 function updateDayWeatherHUD() {
 
-    if (isNight()) {
-
-        dayDisplay.textContent =
-            "🌙 Night";
-
-    } else {
-
-        dayDisplay.textContent =
-            "☀ Day";
-    }
+    dayDisplay.textContent =
+        isNight()
+            ? "Night"
+            : "Day";
 
 
-    const names = {
+    const weatherNames = {
 
         clear:
             "Clear",
@@ -3194,9 +6064,11 @@ function updateDayWeatherHUD() {
 
 
     weatherDisplay.textContent =
-        names[
+        weatherNames[
             state.weather
-        ] || "Clear";
+        ] ||
+        "Clear";
+
 }
 
 
@@ -3204,40 +6076,48 @@ function updateDayWeatherHUD() {
 // WEATHER
 // =====================================================
 
-function updateWeather(dt) {
+function updateWeather(
+    dt
+) {
 
-    weatherTimer += dt;
+    weatherTimer +=
+        dt;
 
 
     if (
-        weatherTimer >
+        weatherTimer >=
         45
     ) {
 
-        weatherTimer = 0;
+        weatherTimer =
+            0;
 
 
-        const choices = [
+        const options = [
+
+            "clear",
             "clear",
             "clear",
             "rain",
             "snow",
             "thunder"
+
         ];
 
 
         state.weather =
-            choices[
+            options[
                 Math.floor(
                     Math.random() *
-                    choices.length
+                    options.length
                 )
             ];
 
 
         showFactoryMessage(
-            `Weather changed: ${state.weather}.`
+            `Weather changed to ${state.weather}.`
         );
+
     }
 
 
@@ -3245,60 +6125,67 @@ function updateWeather(dt) {
         !settings.effects
     ) {
 
-        weatherParticles = [];
+        weatherParticles =
+            [];
+
 
         return;
+
     }
 
 
     if (
-        state.weather ===
+        state.weather !==
         "clear"
     ) {
-        return;
-    }
+
+        const amount =
+            state.weather ===
+            "snow"
+                ? 1
+                : 2;
 
 
-    const amount =
-        state.weather ===
-        "snow"
-            ? 2
-            : 5;
+        for (
+            let i = 0;
+            i < amount;
+            i++
+        ) {
 
+            weatherParticles.push({
 
-    for (
-        let i = 0;
-        i < amount;
-        i++
-    ) {
+                x:
+                    Math.random(),
 
-        weatherParticles.push({
+                y:
+                    -0.05,
 
-            x:
-                Math.random(),
+                speed:
+                    state.weather ===
+                    "snow"
 
-            y: -0.05,
+                        ? 0.10 +
+                          Math.random() *
+                          0.10
 
-            speed:
-                state.weather ===
-                "snow"
-                    ? 0.12 +
-                      Math.random() *
-                      0.12
-                    : 0.7 +
-                      Math.random() *
-                      0.5,
+                        : 0.55 +
+                          Math.random() *
+                          0.35,
 
-            drift:
-                (
-                    Math.random() -
-                    0.5
-                ) *
-                0.08,
+                drift:
+                    (
+                        Math.random() -
+                        0.5
+                    ) *
+                    0.05,
 
-            type:
-                state.weather
-        });
+                type:
+                    state.weather
+
+            });
+
+        }
+
     }
 
 
@@ -3311,23 +6198,35 @@ function updateWeather(dt) {
             particle.speed *
             dt;
 
+
         particle.x +=
             particle.drift *
             dt;
+
     }
 
 
     weatherParticles =
         weatherParticles.filter(
+
             particle =>
+
                 particle.y <
-                1.1
+                1.1 &&
+
+                particle.x >
+                -0.2 &&
+
+                particle.x <
+                1.2
+
         );
+
 }
 
 
 // =====================================================
-// EFFECT PARTICLES
+// MACHINE PARTICLES
 // =====================================================
 
 function createMachineEffects(
@@ -3339,20 +6238,22 @@ function createMachineEffects(
     if (
         !settings.effects
     ) {
+
         return;
+
     }
 
 
-    const count =
+    const amount =
         type ===
         "smelter"
-            ? 8
-            : 5;
+            ? 7
+            : 4;
 
 
     for (
         let i = 0;
-        i < count;
+        i < amount;
         i++
     ) {
 
@@ -3371,31 +6272,37 @@ function createMachineEffects(
                     Math.random() -
                     0.5
                 ) *
-                0.5,
-
-            vy:
-                -0.3 -
-                Math.random() *
                 0.45,
 
+            vy:
+                -0.25 -
+                Math.random() *
+                0.42,
+
             life:
-                0.8 +
+                0.7 +
                 Math.random() *
                 0.5,
 
-            maxLife: 1.3,
+            maxLife:
+                1.2,
 
             type:
                 type ===
                 "smelter"
                     ? "smoke"
                     : "spark"
+
         });
+
     }
+
 }
 
 
-function updateParticles(dt) {
+function updateParticles(
+    dt
+) {
 
     for (
         const particle of
@@ -3406,12 +6313,15 @@ function updateParticles(dt) {
             particle.vx *
             dt;
 
+
         particle.y +=
             particle.vy *
             dt;
 
+
         particle.life -=
             dt;
+
     }
 
 
@@ -3421,6 +6331,7 @@ function updateParticles(dt) {
                 particle.life >
                 0
         );
+
 }
 
 
@@ -3428,13 +6339,17 @@ function updateParticles(dt) {
 // CHALLENGE MODE
 // =====================================================
 
-function updateChallenge(dt) {
+function updateChallenge(
+    dt
+) {
 
     if (
         !state.challenge.active ||
         state.challenge.finished
     ) {
+
         return;
+
     }
 
 
@@ -3443,7 +6358,8 @@ function updateChallenge(dt) {
 
 
     if (
-        state.coins >=
+        state.statistics
+            .coinsEarned >=
         state.challenge.target
     ) {
 
@@ -3451,7 +6367,9 @@ function updateChallenge(dt) {
             true
         );
 
+
         return;
+
     }
 
 
@@ -3460,12 +6378,16 @@ function updateChallenge(dt) {
         0
     ) {
 
-        state.challenge.timeLeft = 0;
+        state.challenge.timeLeft =
+            0;
+
 
         finishChallenge(
             false
         );
+
     }
+
 }
 
 
@@ -3480,7 +6402,9 @@ function updateChallengeHUD() {
             "active"
         );
 
+
         return;
+
     }
 
 
@@ -3499,6 +6423,7 @@ function updateChallengeHUD() {
         formatCountdown(
             state.challenge.timeLeft
         );
+
 }
 
 
@@ -3509,7 +6434,9 @@ function finishChallenge(
     state.challenge.finished =
         true;
 
-    paused = true;
+
+    paused =
+        true;
 
 
     const efficiency =
@@ -3521,116 +6448,128 @@ function finishChallenge(
             .itemsProduced;
 
 
-    const coins =
-        Math.floor(
-            state.coins
-        );
-
-
     const profit =
         state.statistics
             .coinsEarned;
 
 
     let score =
+
         efficiency *
         0.45 +
+
         Math.min(
             100,
-            items / 2
+            items /
+            2
         ) *
         0.25 +
+
         Math.min(
             100,
-            profit / 100
+            profit /
+            100
         ) *
         0.30;
 
 
-    if (success) {
-        score += 15;
+    if (
+        success
+    ) {
+
+        score +=
+            15;
+
     }
 
 
-    let rating = "C";
-
-
-    if (score >= 110) {
-        rating = "S";
-    } else if (score >= 85) {
-        rating = "A";
-    } else if (score >= 65) {
-        rating = "B";
-    }
+    let rating =
+        "C";
 
 
     if (
-        rating === "S" ||
-        rating === "A"
+        score >=
+        110
     ) {
 
-        const current =
-            state.statistics
-                .bestRating;
+        rating =
+            "S";
 
+    } else if (
+        score >=
+        85
+    ) {
 
-        const order = {
-            "-": 0,
-            C: 1,
-            B: 2,
-            A: 3,
-            S: 4
-        };
+        rating =
+            "A";
 
+    } else if (
+        score >=
+        65
+    ) {
 
-        if (
-            order[rating] >
-            order[current]
-        ) {
+        rating =
+            "B";
 
-            state.statistics
-                .bestRating =
-                rating;
-        }
     }
+
+
+    saveChallengeRecord(
+
+        rating,
+
+        profit,
+
+        items
+
+    );
 
 
     challengeResultTitle.textContent =
         success
+
             ? "Challenge Complete!"
+
             : "Time Up!";
 
 
     challengeResultBody.innerHTML = `
 
         <span class="result-rating">
+
             ${rating}
+
         </span>
 
         <p class="result-line">
-            Factory Rating: ${rating}
+
+            Factory Rating:
+            ${rating}
+
         </p>
 
         <p class="result-line">
-            Efficiency: ${efficiency}%
+
+            Efficiency:
+            ${efficiency}%
+
         </p>
 
         <p class="result-line">
-            Coins: ${formatNumber(coins)}
+
+            Coins Earned:
+            ${formatNumber(profit)}
+
         </p>
 
         <p class="result-line">
-            Profit Earned: ${formatNumber(profit)}
-        </p>
 
-        <p class="result-line">
-            Items Produced: ${formatNumber(items)}
+            Items Produced:
+            ${formatNumber(items)}
+
         </p>
 
     `;
-
-
-    saveGame();
 
 
     openPanel(
@@ -3643,6 +6582,7 @@ function finishChallenge(
             ? "win"
             : "error"
     );
+
 }
 
 
@@ -3652,76 +6592,76 @@ function finishChallenge(
 
 function openStatistics() {
 
-    let stats;
+    const factory =
+        state ||
+        loadGame();
 
 
-    if (state) {
-
-        stats =
-            state.statistics;
-
-    } else {
-
-        const saved =
-            loadGame();
+    const record =
+        loadChallengeRecord();
 
 
-        stats =
-            saved?.statistics || {
+    const stats =
+        factory?.statistics ||
+        {
 
-                itemsProduced: 0,
+            itemsProduced:
+                0,
 
-                machinesBuilt: 0,
+            machinesBuilt:
+                0,
 
-                coinsEarned: 0,
+            coinsEarned:
+                0,
 
-                playTime: 0,
+            playTime:
+                0,
 
-                efficiency: 100,
+            efficiency:
+                100
 
-                bestRating: "-"
-            };
-    }
+        };
 
 
     statItemsProduced.textContent =
         formatNumber(
-            stats.itemsProduced || 0
+            stats.itemsProduced
         );
 
 
     statMachinesBuilt.textContent =
         formatNumber(
-            stats.machinesBuilt || 0
+            stats.machinesBuilt
         );
 
 
     statCoinsEarned.textContent =
         formatNumber(
-            stats.coinsEarned || 0
+            stats.coinsEarned
         );
 
 
     statPlayTime.textContent =
         formatPlayTime(
-            stats.playTime || 0
+            stats.playTime
         );
 
 
     statEfficiency.textContent =
         `${Math.round(
-            stats.efficiency ?? 100
+            stats.efficiency ??
+            100
         )}%`;
 
 
     statRating.textContent =
-        stats.bestRating ||
-        "-";
+        record.bestRating;
 
 
     openPanel(
         statisticsPanel
     );
+
 }
 
 
@@ -3729,44 +6669,73 @@ function openStatistics() {
 // MODALS
 // =====================================================
 
-function openPanel(panel) {
+function openPanel(
+    panel
+) {
+
+    if (
+        !panel
+    ) {
+
+        return;
+
+    }
+
 
     panel.classList.add(
         "open"
     );
 
+
     panel.setAttribute(
         "aria-hidden",
         "false"
     );
+
 }
 
 
-function closePanel(panel) {
+function closePanel(
+    panel
+) {
+
+    if (
+        !panel
+    ) {
+
+        return;
+
+    }
+
 
     panel.classList.remove(
         "open"
     );
 
+
     panel.setAttribute(
         "aria-hidden",
         "true"
     );
+
 }
 
 
 function closeAllPanels() {
 
     [
+
         settingsPanel,
         statisticsPanel,
         inventoryPanel,
         upgradesPanel,
-        helpPanel
+        helpPanel,
+        challengeResultPanel
+
     ].forEach(
-        panel =>
-            closePanel(panel)
+        closePanel
     );
+
 }
 
 
@@ -3777,6 +6746,15 @@ function closeAllPanels() {
 function showFactoryMessage(
     message
 ) {
+
+    if (
+        !factoryMessage
+    ) {
+
+        return;
+
+    }
+
 
     factoryMessage.textContent =
         message;
@@ -3792,16 +6770,19 @@ function showFactoryMessage(
             () => {
 
                 if (
-                    gameRunning
+                    gameRunning &&
+                    factoryMessage
                 ) {
 
                     factoryMessage.textContent =
                         "Factory running automatically.";
+
                 }
 
             },
             3500
         );
+
 }
 
 
@@ -3814,11 +6795,25 @@ function resizeCanvas() {
     const rect =
         canvas.getBoundingClientRect();
 
+
+    if (
+        !rect.width ||
+        !rect.height
+    ) {
+
+        return;
+
+    }
+
+
     const ratio =
         Math.min(
+
             window.devicePixelRatio ||
             1,
+
             2
+
         );
 
 
@@ -3843,18 +6838,482 @@ function resizeCanvas() {
 
 
     ctx.setTransform(
+
         ratio,
         0,
         0,
         ratio,
         0,
         0
+
     );
+
 }
 
 
 // =====================================================
-// CANVAS RENDERING
+// CANVAS HELPERS
+// =====================================================
+
+function fillRect(
+    x,
+    y,
+    width,
+    height,
+    color
+) {
+
+    ctx.fillStyle =
+        color;
+
+
+    ctx.fillRect(
+        x,
+        y,
+        width,
+        height
+    );
+
+}
+
+
+function strokeRect(
+    x,
+    y,
+    width,
+    height,
+    color,
+    lineWidth =
+        1
+) {
+
+    ctx.strokeStyle =
+        color;
+
+
+    ctx.lineWidth =
+        lineWidth;
+
+
+    ctx.strokeRect(
+        x,
+        y,
+        width,
+        height
+    );
+
+}
+
+
+function rotateCanvasAround(
+    cx,
+    cy,
+    angle,
+    drawFunction
+) {
+
+    ctx.save();
+
+
+    ctx.translate(
+        cx,
+        cy
+    );
+
+
+    ctx.rotate(
+        angle
+    );
+
+
+    ctx.translate(
+        -cx,
+        -cy
+    );
+
+
+    drawFunction();
+
+
+    ctx.restore();
+
+}
+
+
+// =====================================================
+// MACHINE FRAME
+// =====================================================
+
+function drawMachineFrame(
+    px,
+    py,
+    cellWidth,
+    cellHeight,
+    powered,
+    bodyColor =
+        "#3e4942"
+) {
+
+    const size =
+        Math.min(
+            cellWidth,
+            cellHeight
+        );
+
+
+    const pad =
+        size *
+        0.10;
+
+
+    const x =
+        px +
+        pad;
+
+
+    const y =
+        py +
+        pad;
+
+
+    const width =
+        cellWidth -
+        pad *
+        2;
+
+
+    const height =
+        cellHeight -
+        pad *
+        2;
+
+
+    fillRect(
+
+        x,
+        y,
+        width,
+        height,
+
+        powered
+            ? bodyColor
+            : "#343a36"
+
+    );
+
+
+    // Top metal highlight
+
+    fillRect(
+
+        x +
+        3,
+
+        y +
+        3,
+
+        Math.max(
+            0,
+            width -
+            6
+        ),
+
+        Math.max(
+            2,
+            height *
+            0.11
+        ),
+
+        powered
+            ? "rgba(255,255,255,0.11)"
+            : "rgba(255,255,255,0.04)"
+
+    );
+
+
+    // Bottom shadow
+
+    fillRect(
+
+        x +
+        3,
+
+        y +
+        height -
+        Math.max(
+            4,
+            height *
+            0.15
+        ),
+
+        Math.max(
+            0,
+            width -
+            6
+        ),
+
+        Math.max(
+            2,
+            height *
+            0.10
+        ),
+
+        "rgba(0,0,0,0.28)"
+
+    );
+
+
+    strokeRect(
+
+        x,
+        y,
+        width,
+        height,
+
+        powered
+            ? "#7f9988"
+            : "#59615c",
+
+        2
+
+    );
+
+
+    // Corner bolts
+
+    const bolt =
+        Math.max(
+            2,
+            size *
+            0.035
+        );
+
+
+    const boltColor =
+        "#aab2ad";
+
+
+    fillRect(
+        x + 4,
+        y + 4,
+        bolt,
+        bolt,
+        boltColor
+    );
+
+
+    fillRect(
+        x +
+        width -
+        bolt -
+        4,
+        y + 4,
+        bolt,
+        bolt,
+        boltColor
+    );
+
+
+    fillRect(
+        x + 4,
+        y +
+        height -
+        bolt -
+        4,
+        bolt,
+        bolt,
+        boltColor
+    );
+
+
+    fillRect(
+        x +
+        width -
+        bolt -
+        4,
+        y +
+        height -
+        bolt -
+        4,
+        bolt,
+        bolt,
+        boltColor
+    );
+
+
+    return {
+
+        x,
+        y,
+        width,
+        height,
+        size
+
+    };
+
+}
+
+
+// =====================================================
+// MACHINE STATUS LIGHT
+// =====================================================
+
+function drawStatusLight(
+    x,
+    y,
+    radius,
+    powered
+) {
+
+    ctx.save();
+
+
+    ctx.fillStyle =
+        powered
+            ? "#5eea6d"
+            : "#c84040";
+
+
+    ctx.shadowColor =
+        powered
+            ? "#60ef70"
+            : "#e44747";
+
+
+    ctx.shadowBlur =
+        powered
+            ? radius *
+              1.8
+            : radius *
+              0.6;
+
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+        x,
+        y,
+        radius,
+        0,
+        Math.PI *
+        2
+    );
+
+
+    ctx.fill();
+
+
+    ctx.restore();
+
+}
+
+
+// =====================================================
+// DIRECTION ARROW
+// =====================================================
+
+function drawDirectionArrow(
+    cx,
+    cy,
+    dir,
+    size,
+    color =
+        "#e3e9e5"
+) {
+
+    const vector =
+        DIRECTIONS[
+            dir
+        ];
+
+
+    const side =
+        DIRECTIONS[
+            (
+                dir +
+                1
+            ) %
+            4
+        ];
+
+
+    ctx.fillStyle =
+        color;
+
+
+    ctx.beginPath();
+
+
+    ctx.moveTo(
+
+        cx +
+        vector.x *
+        size,
+
+        cy +
+        vector.y *
+        size
+
+    );
+
+
+    ctx.lineTo(
+
+        cx -
+        vector.x *
+        size *
+        0.65 +
+
+        side.x *
+        size *
+        0.55,
+
+        cy -
+        vector.y *
+        size *
+        0.65 +
+
+        side.y *
+        size *
+        0.55
+
+    );
+
+
+    ctx.lineTo(
+
+        cx -
+        vector.x *
+        size *
+        0.65 -
+
+        side.x *
+        size *
+        0.55,
+
+        cy -
+        vector.y *
+        size *
+        0.65 -
+
+        side.y *
+        size *
+        0.55
+
+    );
+
+
+    ctx.closePath();
+
+
+    ctx.fill();
+
+}
+
+
+// =====================================================
+// MAIN FACTORY RENDER
 // =====================================================
 
 function renderFactory() {
@@ -3863,20 +7322,34 @@ function renderFactory() {
         !gameRunning ||
         !state
     ) {
+
         return;
+
     }
 
 
     const width =
         canvas.clientWidth;
 
+
     const height =
         canvas.clientHeight;
+
+
+    if (
+        !width ||
+        !height
+    ) {
+
+        return;
+
+    }
 
 
     const cellWidth =
         width /
         GRID_COLUMNS;
+
 
     const cellHeight =
         height /
@@ -3892,49 +7365,76 @@ function renderFactory() {
 
 
     drawFactoryFloor(
+
         width,
         height,
         cellWidth,
         cellHeight
+
     );
 
 
     drawFactoryCells(
+
         cellWidth,
         cellHeight
+
     );
 
 
     drawItems(
+
         cellWidth,
         cellHeight
+
     );
 
 
     drawParticles(
+
         cellWidth,
         cellHeight
+
+    );
+
+
+    drawPlacementPreview(
+
+        cellWidth,
+        cellHeight
+
     );
 
 
     drawDayNightOverlay(
+
         width,
         height
+
     );
 
 
     drawFactoryLights(
+
         cellWidth,
         cellHeight
+
     );
 
 
     drawWeather(
+
         width,
         height
+
     );
+
 }
 
+
+// =====================================================
+// FACTORY FLOOR
+// =====================================================
 
 function drawFactoryFloor(
     width,
@@ -3943,14 +7443,14 @@ function drawFactoryFloor(
     cellHeight
 ) {
 
-    ctx.fillStyle =
-        "#1a2b1f";
+    fillRect(
 
-    ctx.fillRect(
         0,
         0,
         width,
-        height
+        height,
+        "#14291b"
+
     );
 
 
@@ -3966,30 +7466,122 @@ function drawFactoryFloor(
             x++
         ) {
 
-            ctx.fillStyle =
-                (
-                    x + y
-                ) % 2 === 0
-                    ? "#203425"
-                    : "#1c3022";
-
-
-            ctx.fillRect(
+            const px =
                 x *
-                cellWidth,
+                cellWidth;
+
+
+            const py =
                 y *
-                cellHeight,
+                cellHeight;
+
+
+            const floorColor =
+                (
+                    x +
+                    y
+                ) %
+                2 ===
+                0
+
+                    ? "#193120"
+
+                    : "#162d1d";
+
+
+            fillRect(
+
+                px,
+                py,
                 cellWidth,
-                cellHeight
+                cellHeight,
+                floorColor
+
             );
+
+
+            strokeRect(
+
+                px +
+                2,
+
+                py +
+                2,
+
+                Math.max(
+                    0,
+                    cellWidth -
+                    4
+                ),
+
+                Math.max(
+                    0,
+                    cellHeight -
+                    4
+                ),
+
+                "rgba(94,137,104,0.10)",
+
+                1
+
+            );
+
+
+            // Floor rivet
+
+            const rivet =
+                Math.max(
+                    1,
+                    Math.min(
+                        cellWidth,
+                        cellHeight
+                    ) *
+                    0.024
+                );
+
+
+            ctx.fillStyle =
+                "rgba(146,165,151,0.17)";
+
+
+            ctx.beginPath();
+
+
+            ctx.arc(
+
+                px +
+                cellWidth *
+                0.14,
+
+                py +
+                cellHeight *
+                0.14,
+
+                rivet,
+
+                0,
+
+                Math.PI *
+                2
+
+            );
+
+
+            ctx.fill();
+
         }
+
     }
 
 
-    ctx.strokeStyle =
-        "rgba(130,160,138,0.25)";
+    // Grid lines
 
-    ctx.lineWidth = 1;
+    ctx.strokeStyle =
+        "rgba(91,139,103,0.26)";
+
+
+    ctx.lineWidth =
+        1;
 
 
     for (
@@ -4000,11 +7592,13 @@ function drawFactoryFloor(
 
         ctx.beginPath();
 
+
         ctx.moveTo(
             x *
             cellWidth,
             0
         );
+
 
         ctx.lineTo(
             x *
@@ -4012,7 +7606,9 @@ function drawFactoryFloor(
             height
         );
 
+
         ctx.stroke();
+
     }
 
 
@@ -4024,11 +7620,13 @@ function drawFactoryFloor(
 
         ctx.beginPath();
 
+
         ctx.moveTo(
             0,
             y *
             cellHeight
         );
+
 
         ctx.lineTo(
             width,
@@ -4036,26 +7634,17 @@ function drawFactoryFloor(
             cellHeight
         );
 
+
         ctx.stroke();
+
     }
 
-
-    if (hoveredCell) {
-
-        ctx.fillStyle =
-            "rgba(255,255,255,0.08)";
-
-        ctx.fillRect(
-            hoveredCell.x *
-            cellWidth,
-            hoveredCell.y *
-            cellHeight,
-            cellWidth,
-            cellHeight
-        );
-    }
 }
 
+
+// =====================================================
+// DRAW ALL FACTORY CELLS
+// =====================================================
 
 function drawFactoryCells(
     cellWidth,
@@ -4080,401 +7669,147 @@ function drawFactoryCells(
         ) {
 
             const cell =
-                getCell(x, y);
+                getCell(
+                    x,
+                    y
+                );
 
-            if (!cell) {
+
+            if (
+                !cell
+            ) {
+
                 continue;
+
             }
 
 
-            drawCell(
+            const px =
+                x *
+                cellWidth;
+
+
+            const py =
+                y *
+                cellHeight;
+
+
+            // Conveyor
+
+            if (
+                cell.type ===
+                "belt" ||
+                cell.type ===
+                "splitBelt"
+            ) {
+
+                drawConveyor(
+
+                    px,
+                    py,
+                    cellWidth,
+                    cellHeight,
+                    cell,
+                    time
+
+                );
+
+
+                continue;
+
+            }
+
+
+            // Redstone Wire
+
+            if (
+                cell.type ===
+                "wire"
+            ) {
+
+                drawRedstoneWire(
+
+                    x,
+                    y,
+                    px,
+                    py,
+                    cellWidth,
+                    cellHeight,
+                    time
+
+                );
+
+
+                continue;
+
+            }
+
+
+            // Power components
+
+            if (
+                [
+                    "lever",
+                    "button",
+                    "torch",
+                    "repeater"
+                ].includes(
+                    cell.type
+                )
+            ) {
+
+                drawPowerComponent(
+
+                    x,
+                    y,
+                    px,
+                    py,
+                    cellWidth,
+                    cellHeight,
+                    cell,
+                    time
+
+                );
+
+
+                continue;
+
+            }
+
+
+            // Machines
+
+            drawMachine(
+
                 x,
                 y,
-                cell,
+                px,
+                py,
                 cellWidth,
                 cellHeight,
+                cell,
                 time
+
             );
+
         }
+
     }
+
 }
 
 
-function drawCell(
-    x,
-    y,
-    cell,
+// =====================================================
+// CONVEYOR GRAPHICS
+// =====================================================
+
+function drawConveyor(
+    px,
+    py,
     cellWidth,
     cellHeight,
-    time
-) {
-
-    const px =
-        x *
-        cellWidth;
-
-    const py =
-        y *
-        cellHeight;
-
-
-    const pad =
-        Math.min(
-            cellWidth,
-            cellHeight
-        ) *
-        0.09;
-
-
-    const cx =
-        px +
-        cellWidth / 2;
-
-    const cy =
-        py +
-        cellHeight / 2;
-
-
-    if (
-        cell.type ===
-        "belt" ||
-        cell.type ===
-        "splitBelt"
-    ) {
-
-        ctx.fillStyle =
-            "#353a38";
-
-        ctx.fillRect(
-            px + pad,
-            py + pad,
-            cellWidth -
-            pad * 2,
-            cellHeight -
-            pad * 2
-        );
-
-
-        ctx.strokeStyle =
-            "#616965";
-
-        ctx.lineWidth = 2;
-
-        ctx.strokeRect(
-            px + pad,
-            py + pad,
-            cellWidth -
-            pad * 2,
-            cellHeight -
-            pad * 2
-        );
-
-
-        const pulse =
-            (
-                time *
-                (
-                    1.5 +
-                    state.upgrades
-                        .beltSpeed *
-                    0.3
-                )
-            ) % 1;
-
-
-        ctx.fillStyle =
-            "#8c9891";
-
-
-        drawArrow(
-            cx,
-            cy,
-            cell.dir,
-            Math.min(
-                cellWidth,
-                cellHeight
-            ) *
-            (
-                0.15 +
-                pulse *
-                0.05
-            )
-        );
-
-
-        if (
-            cell.type ===
-            "splitBelt"
-        ) {
-
-            drawArrow(
-                cx,
-                cy,
-                (
-                    cell.dir + 1
-                ) % 4,
-                Math.min(
-                    cellWidth,
-                    cellHeight
-                ) *
-                0.12
-            );
-        }
-
-        return;
-    }
-
-
-    if (
-        cell.type ===
-        "wire"
-    ) {
-
-        const powered =
-            poweredNetwork.has(
-                getIndex(x, y)
-            );
-
-
-        ctx.strokeStyle =
-            powered
-                ? "#ff3939"
-                : "#6d2020";
-
-
-        ctx.lineWidth =
-            powered
-                ? 4
-                : 3;
-
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-            px + pad,
-            cy
-        );
-
-        ctx.lineTo(
-            px +
-            cellWidth -
-            pad,
-            cy
-        );
-
-        ctx.moveTo(
-            cx,
-            py + pad
-        );
-
-        ctx.lineTo(
-            cx,
-            py +
-            cellHeight -
-            pad
-        );
-
-        ctx.stroke();
-
-
-        if (powered) {
-
-            ctx.fillStyle =
-                "#ff5c5c";
-
-            ctx.beginPath();
-
-            ctx.arc(
-                cx,
-                cy,
-                3 +
-                Math.sin(
-                    time *
-                    7
-                ),
-                0,
-                Math.PI * 2
-            );
-
-            ctx.fill();
-        }
-
-        return;
-    }
-
-
-    if (
-        cell.type ===
-        "lever" ||
-        cell.type ===
-        "button" ||
-        cell.type ===
-        "torch" ||
-        cell.type ===
-        "repeater"
-    ) {
-
-        drawPowerBlock(
-            x,
-            y,
-            cell,
-            cellWidth,
-            cellHeight,
-            time
-        );
-
-        return;
-    }
-
-
-    const powered =
-        !POWERED_MACHINE_TYPES.has(
-            cell.type
-        ) ||
-        poweredMachines.has(
-            getIndex(x, y)
-        );
-
-
-    ctx.fillStyle =
-        powered
-            ? "#365441"
-            : "#343a36";
-
-
-    if (
-        cell.type ===
-        "smelter"
-    ) {
-
-        ctx.fillStyle =
-            powered
-                ? "#6c4024"
-                : "#40362f";
-    }
-
-
-    if (
-        cell.type ===
-        "crusher"
-    ) {
-
-        ctx.fillStyle =
-            powered
-                ? "#4d5153"
-                : "#343637";
-    }
-
-
-    if (
-        cell.type ===
-        "crafter"
-    ) {
-
-        ctx.fillStyle =
-            powered
-                ? "#6a4a2a"
-                : "#41362a";
-    }
-
-
-    if (
-        cell.type ===
-        "chest"
-    ) {
-
-        ctx.fillStyle =
-            "#8b5c25";
-    }
-
-
-    if (
-        cell.type ===
-        "sorter"
-    ) {
-
-        ctx.fillStyle =
-            powered
-                ? "#3d5d6c"
-                : "#303b40";
-    }
-
-
-    ctx.fillRect(
-        px + pad,
-        py + pad,
-        cellWidth -
-        pad * 2,
-        cellHeight -
-        pad * 2
-    );
-
-
-    ctx.strokeStyle =
-        powered
-            ? "#83a98c"
-            : "#666";
-
-
-    ctx.lineWidth = 2;
-
-
-    ctx.strokeRect(
-        px + pad,
-        py + pad,
-        cellWidth -
-        pad * 2,
-        cellHeight -
-        pad * 2
-    );
-
-
-    drawMachineSymbol(
-        cx,
-        cy,
-        cell,
-        powered,
-        time,
-        cellWidth,
-        cellHeight
-    );
-
-
-    if (
-        cell.type !==
-        "chest"
-    ) {
-
-        ctx.fillStyle =
-            "#e4eae5";
-
-
-        drawArrow(
-            px +
-            cellWidth *
-            0.78,
-            py +
-            cellHeight *
-            0.78,
-            cell.dir,
-            Math.min(
-                cellWidth,
-                cellHeight
-            ) *
-            0.08
-        );
-    }
-}
-
-
-function drawMachineSymbol(
-    cx,
-    cy,
     cell,
-    powered,
-    time,
-    cellWidth,
-    cellHeight
+    time
 ) {
 
     const size =
@@ -4484,103 +7819,1128 @@ function drawMachineSymbol(
         );
 
 
-    ctx.textAlign =
-        "center";
-
-    ctx.textBaseline =
-        "middle";
+    const pad =
+        size *
+        0.09;
 
 
-    let symbol = "?";
+    const x =
+        px +
+        pad;
+
+
+    const y =
+        py +
+        pad;
+
+
+    const width =
+        cellWidth -
+        pad *
+        2;
+
+
+    const height =
+        cellHeight -
+        pad *
+        2;
+
+
+    // Metal outside
+
+    fillRect(
+
+        x,
+        y,
+        width,
+        height,
+        "#252e29"
+
+    );
+
+
+    strokeRect(
+
+        x,
+        y,
+        width,
+        height,
+        "#69746e",
+        2
+
+    );
+
+
+    // Conveyor surface
+
+    fillRect(
+
+        x +
+        width *
+        0.10,
+
+        y +
+        height *
+        0.16,
+
+        width *
+        0.80,
+
+        height *
+        0.68,
+
+        "#353e39"
+
+    );
+
+
+    // Side rails
+
+    fillRect(
+
+        x +
+        width *
+        0.04,
+
+        y +
+        height *
+        0.10,
+
+        width *
+        0.07,
+
+        height *
+        0.80,
+
+        "#78817c"
+
+    );
+
+
+    fillRect(
+
+        x +
+        width *
+        0.89,
+
+        y +
+        height *
+        0.10,
+
+        width *
+        0.07,
+
+        height *
+        0.80,
+
+        "#78817c"
+
+    );
+
+
+    const animationSpeed =
+
+        1.5 +
+
+        state.upgrades
+            .beltSpeed *
+        0.35;
+
+
+    const phase =
+        (
+            time *
+            animationSpeed
+        ) %
+        1;
+
+
+    const vector =
+        DIRECTIONS[
+            cell.dir
+        ];
+
+
+    const side =
+        DIRECTIONS[
+            (
+                cell.dir +
+                1
+            ) %
+            4
+        ];
+
+
+    const centerX =
+        x +
+        width /
+        2;
+
+
+    const centerY =
+        y +
+        height /
+        2;
+
+
+    ctx.save();
+
+
+    ctx.beginPath();
+
+
+    ctx.rect(
+        x + 2,
+        y + 2,
+        width - 4,
+        height - 4
+    );
+
+
+    ctx.clip();
+
+
+    ctx.strokeStyle =
+        "rgba(195,205,199,0.45)";
+
+
+    ctx.lineWidth =
+        Math.max(
+            1,
+            size *
+            0.025
+        );
+
+
+    for (
+        let i = -3;
+        i <= 3;
+        i++
+    ) {
+
+        const along =
+            (
+                i +
+                phase
+            ) *
+            size *
+            0.22;
+
+
+        const startX =
+
+            centerX +
+
+            vector.x *
+            along -
+
+            side.x *
+            size *
+            0.18;
+
+
+        const startY =
+
+            centerY +
+
+            vector.y *
+            along -
+
+            side.y *
+            size *
+            0.18;
+
+
+        const endX =
+
+            centerX +
+
+            vector.x *
+            along +
+
+            side.x *
+            size *
+            0.18;
+
+
+        const endY =
+
+            centerY +
+
+            vector.y *
+            along +
+
+            side.y *
+            size *
+            0.18;
+
+
+        ctx.beginPath();
+
+
+        ctx.moveTo(
+            startX,
+            startY
+        );
+
+
+        ctx.lineTo(
+            endX,
+            endY
+        );
+
+
+        ctx.stroke();
+
+    }
+
+
+    ctx.restore();
+
+
+    drawDirectionArrow(
+
+        centerX,
+        centerY,
+        cell.dir,
+        size *
+        0.12,
+        "#e4e9e6"
+
+    );
+
+
+    if (
+        cell.type ===
+        "splitBelt"
+    ) {
+
+        drawDirectionArrow(
+
+            centerX,
+            centerY,
+
+            (
+                cell.dir +
+                1
+            ) %
+            4,
+
+            size *
+            0.075,
+
+            "#65dd72"
+
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// REDSTONE WIRE GRAPHICS
+// =====================================================
+
+function drawRedstoneWire(
+    x,
+    y,
+    px,
+    py,
+    cellWidth,
+    cellHeight,
+    time
+) {
+
+    const powered =
+        poweredNetwork.has(
+            getIndex(
+                x,
+                y
+            )
+        );
+
+
+    const cx =
+        px +
+        cellWidth /
+        2;
+
+
+    const cy =
+        py +
+        cellHeight /
+        2;
+
+
+    const size =
+        Math.min(
+            cellWidth,
+            cellHeight
+        );
+
+
+    ctx.save();
+
+
+    if (
+        powered
+    ) {
+
+        ctx.shadowColor =
+            "#ff4141";
+
+
+        ctx.shadowBlur =
+            8 +
+            Math.sin(
+                time *
+                6
+            ) *
+            2;
+
+    }
+
+
+    ctx.strokeStyle =
+        powered
+            ? "#ff4242"
+            : "#7b2020";
+
+
+    ctx.lineWidth =
+        Math.max(
+            3,
+            size *
+            0.055
+        );
+
+
+    ctx.lineCap =
+        "square";
+
+
+    ctx.beginPath();
+
+
+    ctx.moveTo(
+        px +
+        size *
+        0.10,
+        cy
+    );
+
+
+    ctx.lineTo(
+        px +
+        cellWidth -
+        size *
+        0.10,
+        cy
+    );
+
+
+    ctx.moveTo(
+        cx,
+        py +
+        size *
+        0.10
+    );
+
+
+    ctx.lineTo(
+        cx,
+        py +
+        cellHeight -
+        size *
+        0.10
+    );
+
+
+    ctx.stroke();
+
+
+    ctx.fillStyle =
+        powered
+            ? "#ff6c6c"
+            : "#922929";
+
+
+    ctx.fillRect(
+
+        cx -
+        size *
+        0.055,
+
+        cy -
+        size *
+        0.055,
+
+        size *
+        0.11,
+
+        size *
+        0.11
+
+    );
+
+
+    ctx.restore();
+
+}
+
+
+// =====================================================
+// POWER COMPONENT GRAPHICS
+// =====================================================
+
+function drawPowerComponent(
+    x,
+    y,
+    px,
+    py,
+    cellWidth,
+    cellHeight,
+    cell,
+    time
+) {
+
+    const active =
+
+        isSourceActive(
+            cell
+        ) ||
+
+        poweredNetwork.has(
+            getIndex(
+                x,
+                y
+            )
+        );
+
+
+    const frame =
+        drawMachineFrame(
+
+            px,
+            py,
+            cellWidth,
+            cellHeight,
+            active,
+
+            active
+                ? "#592b2b"
+                : "#363c38"
+
+        );
+
+
+    const cx =
+        frame.x +
+        frame.width /
+        2;
+
+
+    const cy =
+        frame.y +
+        frame.height /
+        2;
+
+
+    const size =
+        frame.size;
+
+
+    // Lever
+
+    if (
+        cell.type ===
+        "lever"
+    ) {
+
+        fillRect(
+
+            cx -
+            size *
+            0.20,
+
+            cy +
+            size *
+            0.08,
+
+            size *
+            0.40,
+
+            size *
+            0.15,
+
+            "#7c776a"
+
+        );
+
+
+        strokeRect(
+
+            cx -
+            size *
+            0.20,
+
+            cy +
+            size *
+            0.08,
+
+            size *
+            0.40,
+
+            size *
+            0.15,
+
+            "#34332e",
+
+            1
+
+        );
+
+
+        const leverAngle =
+            cell.enabled
+                ? -0.55
+                : 0.55;
+
+
+        rotateCanvasAround(
+
+            cx,
+
+            cy +
+            size *
+            0.10,
+
+            leverAngle,
+
+            () => {
+
+                fillRect(
+
+                    cx -
+                    size *
+                    0.035,
+
+                    cy -
+                    size *
+                    0.20,
+
+                    size *
+                    0.07,
+
+                    size *
+                    0.32,
+
+                    "#c8bea3"
+
+                );
+
+            }
+
+        );
+
+    }
+
+
+    // Button
+
+    if (
+        cell.type ===
+        "button"
+    ) {
+
+        ctx.fillStyle =
+            active
+                ? "#e1e4df"
+                : "#959d97";
+
+
+        ctx.beginPath();
+
+
+        ctx.arc(
+
+            cx,
+            cy,
+
+            size *
+            0.17,
+
+            0,
+
+            Math.PI *
+            2
+
+        );
+
+
+        ctx.fill();
+
+
+        ctx.strokeStyle =
+            "#414741";
+
+
+        ctx.lineWidth =
+            2;
+
+
+        ctx.stroke();
+
+    }
+
+
+    // Torch
+
+    if (
+        cell.type ===
+        "torch"
+    ) {
+
+        fillRect(
+
+            cx -
+            size *
+            0.035,
+
+            cy -
+            size *
+            0.02,
+
+            size *
+            0.07,
+
+            size *
+            0.26,
+
+            "#76512d"
+
+        );
+
+
+        ctx.save();
+
+
+        ctx.shadowColor =
+            "#ff4141";
+
+
+        ctx.shadowBlur =
+            10 +
+            Math.sin(
+                time *
+                7
+            ) *
+            2;
+
+
+        ctx.fillStyle =
+            "#ff4848";
+
+
+        ctx.beginPath();
+
+
+        ctx.arc(
+
+            cx,
+
+            cy -
+            size *
+            0.13,
+
+            size *
+            0.11,
+
+            0,
+
+            Math.PI *
+            2
+
+        );
+
+
+        ctx.fill();
+
+
+        ctx.restore();
+
+    }
+
+
+    // Repeater
+
+    if (
+        cell.type ===
+        "repeater"
+    ) {
+
+        fillRect(
+
+            cx -
+            size *
+            0.24,
+
+            cy -
+            size *
+            0.17,
+
+            size *
+            0.48,
+
+            size *
+            0.34,
+
+            "#bbb9ae"
+
+        );
+
+
+        strokeRect(
+
+            cx -
+            size *
+            0.24,
+
+            cy -
+            size *
+            0.17,
+
+            size *
+            0.48,
+
+            size *
+            0.34,
+
+            "#626560",
+
+            1
+
+        );
+
+
+        const side =
+            DIRECTIONS[
+                (
+                    cell.dir +
+                    1
+                ) %
+                4
+            ];
+
+
+        for (
+            const offset of
+            [
+                -0.10,
+                0.10
+            ]
+        ) {
+
+            const dotX =
+                cx +
+                side.x *
+                size *
+                offset;
+
+
+            const dotY =
+                cy +
+                side.y *
+                size *
+                offset;
+
+
+            ctx.save();
+
+
+            ctx.shadowColor =
+                active
+                    ? "#ff4343"
+                    : "transparent";
+
+
+            ctx.shadowBlur =
+                active
+                    ? 6
+                    : 0;
+
+
+            ctx.fillStyle =
+                active
+                    ? "#e83a3a"
+                    : "#773131";
+
+
+            ctx.beginPath();
+
+
+            ctx.arc(
+
+                dotX,
+                dotY,
+
+                size *
+                0.045,
+
+                0,
+
+                Math.PI *
+                2
+
+            );
+
+
+            ctx.fill();
+
+
+            ctx.restore();
+
+        }
+
+
+        drawDirectionArrow(
+
+            cx,
+            cy,
+            cell.dir,
+            size *
+            0.08,
+            "#555b57"
+
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// MACHINE GRAPHICS
+// =====================================================
+
+function drawMachine(
+    x,
+    y,
+    px,
+    py,
+    cellWidth,
+    cellHeight,
+    cell,
+    time
+) {
+
+    const powered =
+
+        !POWERED_MACHINE_TYPES.has(
+            cell.type
+        ) ||
+
+        poweredMachines.has(
+            getIndex(
+                x,
+                y
+            )
+        );
+
+
+    let bodyColor =
+        "#445149";
+
+
+    if (
+        cell.type ===
+        "crusher"
+    ) {
+
+        bodyColor =
+            "#48504c";
+
+    }
+
+
+    if (
+        cell.type ===
+        "smelter"
+    ) {
+
+        bodyColor =
+            "#62452f";
+
+    }
+
+
+    if (
+        cell.type ===
+        "sorter"
+    ) {
+
+        bodyColor =
+            "#34596b";
+
+    }
+
+
+    if (
+        cell.type ===
+        "crafter"
+    ) {
+
+        bodyColor =
+            "#5f4931";
+
+    }
+
+
+    if (
+        cell.type ===
+        "chest"
+    ) {
+
+        bodyColor =
+            "#8e6029";
+
+    }
+
+
+    const frame =
+        drawMachineFrame(
+
+            px,
+            py,
+            cellWidth,
+            cellHeight,
+            powered,
+            bodyColor
+
+        );
+
+
+    const cx =
+        frame.x +
+        frame.width /
+        2;
+
+
+    const cy =
+        frame.y +
+        frame.height /
+        2;
+
+
+    const size =
+        frame.size;
 
 
     if (
         cell.type ===
         "miner"
     ) {
-        symbol = "⛏";
+
+        drawMinerGraphic(
+
+            cx,
+            cy,
+            size,
+            powered,
+            time
+
+        );
+
     }
+
 
     if (
         cell.type ===
         "crusher"
     ) {
-        symbol = "🔨";
+
+        drawCrusherGraphic(
+
+            cx,
+            cy,
+            size,
+            powered,
+            time
+
+        );
+
     }
+
 
     if (
         cell.type ===
         "smelter"
     ) {
-        symbol = "🔥";
+
+        drawSmelterGraphic(
+
+            cx,
+            cy,
+            size,
+            powered,
+            time
+
+        );
+
     }
+
 
     if (
         cell.type ===
         "sorter"
     ) {
-        symbol = "⇆";
+
+        drawSorterGraphic(
+
+            cx,
+            cy,
+            size,
+            cell,
+            powered
+
+        );
+
     }
+
 
     if (
         cell.type ===
         "crafter"
     ) {
-        symbol = "⚙";
+
+        drawCrafterGraphic(
+
+            cx,
+            cy,
+            size,
+            powered,
+            time
+
+        );
+
     }
+
 
     if (
         cell.type ===
         "chest"
     ) {
-        symbol = "📦";
-    }
 
+        drawChestGraphic(
 
-    ctx.save();
+            cx,
+            cy,
+            size
 
-
-    ctx.translate(
-        cx,
-        cy
-    );
-
-
-    if (
-        powered &&
-        (
-            cell.type ===
-            "miner" ||
-            cell.type ===
-            "crafter"
-        )
-    ) {
-
-        ctx.rotate(
-            Math.sin(
-                time *
-                3
-            ) *
-            0.08
         );
+
     }
-
-
-    ctx.font =
-        `${Math.max(
-            13,
-            size * 0.38
-        )}px Arial`;
-
-
-    ctx.fillText(
-        symbol,
-        0,
-        0
-    );
-
-
-    ctx.restore();
 
 
     if (
@@ -4589,300 +8949,890 @@ function drawMachineSymbol(
         )
     ) {
 
-        ctx.fillStyle =
-            powered
-                ? "#65e26e"
-                : "#d14a4a";
+        drawStatusLight(
 
-
-        ctx.beginPath();
-
-        ctx.arc(
-            cx +
+            frame.x +
+            frame.width -
             size *
-            0.28,
-            cy -
+            0.12,
+
+            frame.y +
             size *
-            0.28,
+            0.12,
+
             Math.max(
                 2,
                 size *
                 0.045
             ),
-            0,
-            Math.PI * 2
+
+            powered
+
         );
 
-        ctx.fill();
     }
+
+
+    if (
+        cell.type !==
+        "chest"
+    ) {
+
+        drawDirectionArrow(
+
+            frame.x +
+            frame.width *
+            0.78,
+
+            frame.y +
+            frame.height *
+            0.78,
+
+            cell.dir,
+
+            size *
+            0.065,
+
+            "#e1e6e2"
+
+        );
+
+    }
+
 }
 
 
-function drawPowerBlock(
-    x,
-    y,
-    cell,
-    cellWidth,
-    cellHeight,
+// =====================================================
+// MINER GRAPHIC
+// =====================================================
+
+function drawMinerGraphic(
+    cx,
+    cy,
+    size,
+    powered,
     time
 ) {
 
-    const px =
-        x *
-        cellWidth;
+    fillRect(
 
-    const py =
-        y *
-        cellHeight;
+        cx -
+        size *
+        0.17,
 
-    const cx =
-        px +
-        cellWidth / 2;
+        cy -
+        size *
+        0.17,
 
-    const cy =
-        py +
-        cellHeight / 2;
+        size *
+        0.34,
 
-    const size =
-        Math.min(
-            cellWidth,
-            cellHeight
-        );
+        size *
+        0.34,
 
+        powered
+            ? "#27362d"
+            : "#282c29"
 
-    const active =
-        isSourceActive(cell) ||
-        poweredNetwork.has(
-            getIndex(x, y)
-        );
-
-
-    ctx.fillStyle =
-        active
-            ? "#5f2929"
-            : "#353635";
-
-
-    ctx.fillRect(
-        px +
-        cellWidth *
-        0.13,
-        py +
-        cellHeight *
-        0.13,
-        cellWidth *
-        0.74,
-        cellHeight *
-        0.74
     );
 
 
-    ctx.strokeStyle =
-        active
-            ? "#ff5555"
-            : "#696969";
+    strokeRect(
 
-    ctx.lineWidth = 2;
+        cx -
+        size *
+        0.17,
 
-    ctx.strokeRect(
-        px +
-        cellWidth *
-        0.13,
-        py +
-        cellHeight *
-        0.13,
-        cellWidth *
-        0.74,
-        cellHeight *
-        0.74
+        cy -
+        size *
+        0.17,
+
+        size *
+        0.34,
+
+        size *
+        0.34,
+
+        "#78837c",
+
+        1
+
     );
 
 
-    let symbol = "•";
+    const angle =
+        powered
+            ? time *
+              2.8
+            : 0;
 
 
-    if (
-        cell.type ===
-        "lever"
-    ) {
+    rotateCanvasAround(
 
-        symbol =
-            cell.enabled
-                ? "ON"
-                : "OFF";
-    }
-
-    if (
-        cell.type ===
-        "button"
-    ) {
-
-        symbol = "●";
-    }
-
-    if (
-        cell.type ===
-        "torch"
-    ) {
-
-        symbol = "♦";
-    }
-
-    if (
-        cell.type ===
-        "repeater"
-    ) {
-
-        symbol = "▶▶";
-    }
-
-
-    ctx.fillStyle =
-        active
-            ? "#ff6565"
-            : "#b1b1b1";
-
-
-    ctx.font =
-        `${Math.max(
-            8,
-            size *
-            0.2
-        )}px Arial`;
-
-
-    ctx.textAlign =
-        "center";
-
-    ctx.textBaseline =
-        "middle";
-
-
-    ctx.fillText(
-        symbol,
         cx,
-        cy
+        cy,
+        angle,
+
+        () => {
+
+            ctx.strokeStyle =
+                powered
+                    ? "#d2d9d5"
+                    : "#777f79";
+
+
+            ctx.lineWidth =
+                Math.max(
+                    2,
+                    size *
+                    0.06
+                );
+
+
+            ctx.beginPath();
+
+
+            ctx.moveTo(
+
+                cx -
+                size *
+                0.20,
+
+                cy
+
+            );
+
+
+            ctx.lineTo(
+
+                cx +
+                size *
+                0.20,
+
+                cy
+
+            );
+
+
+            ctx.moveTo(
+
+                cx,
+
+                cy -
+                size *
+                0.20
+
+            );
+
+
+            ctx.lineTo(
+
+                cx,
+
+                cy +
+                size *
+                0.20
+
+            );
+
+
+            ctx.stroke();
+
+        }
+
     );
 
 
-    if (
-        active &&
-        cell.type ===
-        "torch"
-    ) {
+    // Drill tip
 
-        ctx.strokeStyle =
-            `rgba(
-                255,
-                70,
-                70,
-                ${
-                    0.4 +
-                    Math.sin(
-                        time *
-                        6
-                    ) *
-                    0.15
-                }
-            )`;
-
-
-        ctx.lineWidth = 3;
-
-
-        ctx.beginPath();
-
-        ctx.arc(
-            cx,
-            cy,
-            size * 0.31,
-            0,
-            Math.PI * 2
-        );
-
-        ctx.stroke();
-    }
-}
-
-
-function drawArrow(
-    cx,
-    cy,
-    dir,
-    size
-) {
-
-    const vector =
-        DIRECTIONS[
-            dir
-        ];
-
-
-    const side =
-        DIRECTIONS[
-            (
-                dir + 1
-            ) % 4
-        ];
+    ctx.fillStyle =
+        powered
+            ? "#c1cbc5"
+            : "#747b76";
 
 
     ctx.beginPath();
 
 
     ctx.moveTo(
+
         cx +
-        vector.x *
-        size,
+        size *
+        0.27,
+
+        cy
+
+    );
+
+
+    ctx.lineTo(
+
+        cx +
+        size *
+        0.12,
+
+        cy -
+        size *
+        0.10
+
+    );
+
+
+    ctx.lineTo(
+
+        cx +
+        size *
+        0.12,
+
         cy +
-        vector.y *
-        size
-    );
+        size *
+        0.10
 
-
-    ctx.lineTo(
-        cx -
-        vector.x *
-        size *
-        0.65 +
-        side.x *
-        size *
-        0.55,
-        cy -
-        vector.y *
-        size *
-        0.65 +
-        side.y *
-        size *
-        0.55
-    );
-
-
-    ctx.lineTo(
-        cx -
-        vector.x *
-        size *
-        0.65 -
-        side.x *
-        size *
-        0.55,
-        cy -
-        vector.y *
-        size *
-        0.65 -
-        side.y *
-        size *
-        0.55
     );
 
 
     ctx.closePath();
 
+
     ctx.fill();
+
 }
 
 
 // =====================================================
-// DRAW ITEMS
+// CRUSHER GRAPHIC
+// =====================================================
+
+function drawCrusherGraphic(
+    cx,
+    cy,
+    size,
+    powered,
+    time
+) {
+
+    const rollerRadius =
+        size *
+        0.105;
+
+
+    const offset =
+        size *
+        0.12;
+
+
+    const rotation =
+        powered
+            ? time *
+              3.5
+            : 0;
+
+
+    for (
+        const side of
+        [
+            -1,
+            1
+        ]
+    ) {
+
+        const rollerX =
+            cx +
+            side *
+            offset;
+
+
+        ctx.fillStyle =
+            "#1c211e";
+
+
+        ctx.beginPath();
+
+
+        ctx.arc(
+
+            rollerX,
+            cy,
+
+            rollerRadius *
+            1.2,
+
+            0,
+
+            Math.PI *
+            2
+
+        );
+
+
+        ctx.fill();
+
+
+        rotateCanvasAround(
+
+            rollerX,
+            cy,
+
+            rotation *
+            side,
+
+            () => {
+
+                ctx.strokeStyle =
+                    powered
+                        ? "#a7b0aa"
+                        : "#656b67";
+
+
+                ctx.lineWidth =
+                    Math.max(
+                        2,
+                        size *
+                        0.035
+                    );
+
+
+                ctx.beginPath();
+
+
+                ctx.moveTo(
+
+                    rollerX -
+                    rollerRadius,
+
+                    cy
+
+                );
+
+
+                ctx.lineTo(
+
+                    rollerX +
+                    rollerRadius,
+
+                    cy
+
+                );
+
+
+                ctx.moveTo(
+
+                    rollerX,
+
+                    cy -
+                    rollerRadius
+
+                );
+
+
+                ctx.lineTo(
+
+                    rollerX,
+
+                    cy +
+                    rollerRadius
+
+                );
+
+
+                ctx.stroke();
+
+            }
+
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// SMELTER GRAPHIC
+// =====================================================
+
+function drawSmelterGraphic(
+    cx,
+    cy,
+    size,
+    powered,
+    time
+) {
+
+    const windowSize =
+        size *
+        0.30;
+
+
+    fillRect(
+
+        cx -
+        windowSize /
+        2,
+
+        cy -
+        windowSize /
+        2,
+
+        windowSize,
+
+        windowSize,
+
+        "#281611"
+
+    );
+
+
+    strokeRect(
+
+        cx -
+        windowSize /
+        2,
+
+        cy -
+        windowSize /
+        2,
+
+        windowSize,
+
+        windowSize,
+
+        "#7c5b45",
+
+        2
+
+    );
+
+
+    if (
+        !powered
+    ) {
+
+        return;
+
+    }
+
+
+    const pulse =
+        0.70 +
+        Math.sin(
+            time *
+            7
+        ) *
+        0.15;
+
+
+    ctx.save();
+
+
+    ctx.globalAlpha =
+        pulse;
+
+
+    ctx.shadowColor =
+        "#ff6d1e";
+
+
+    ctx.shadowBlur =
+        size *
+        0.18;
+
+
+    ctx.fillStyle =
+        "#ff7b23";
+
+
+    ctx.beginPath();
+
+
+    ctx.moveTo(
+
+        cx,
+
+        cy -
+        size *
+        0.12
+
+    );
+
+
+    ctx.lineTo(
+
+        cx -
+        size *
+        0.11,
+
+        cy +
+        size *
+        0.10
+
+    );
+
+
+    ctx.lineTo(
+
+        cx,
+
+        cy +
+        size *
+        0.05
+
+    );
+
+
+    ctx.lineTo(
+
+        cx +
+        size *
+        0.10,
+
+        cy +
+        size *
+        0.11
+
+    );
+
+
+    ctx.closePath();
+
+
+    ctx.fill();
+
+
+    ctx.restore();
+
+}
+
+
+// =====================================================
+// SORTER GRAPHIC
+// =====================================================
+
+function drawSorterGraphic(
+    cx,
+    cy,
+    size,
+    cell,
+    powered
+) {
+
+    fillRect(
+
+        cx -
+        size *
+        0.18,
+
+        cy -
+        size *
+        0.06,
+
+        size *
+        0.36,
+
+        size *
+        0.12,
+
+        powered
+            ? "#6ca2b6"
+            : "#566269"
+
+    );
+
+
+    fillRect(
+
+        cx -
+        size *
+        0.05,
+
+        cy -
+        size *
+        0.18,
+
+        size *
+        0.10,
+
+        size *
+        0.36,
+
+        powered
+            ? "#5f8795"
+            : "#4f595e"
+
+    );
+
+
+    const filterInfo =
+        RESOURCES[
+            cell.filter
+        ] ||
+        RESOURCES.coal;
+
+
+    fillRect(
+
+        cx -
+        size *
+        0.075,
+
+        cy -
+        size *
+        0.075,
+
+        size *
+        0.15,
+
+        size *
+        0.15,
+
+        filterInfo.color
+
+    );
+
+
+    strokeRect(
+
+        cx -
+        size *
+        0.075,
+
+        cy -
+        size *
+        0.075,
+
+        size *
+        0.15,
+
+        size *
+        0.15,
+
+        filterInfo.light,
+
+        1
+
+    );
+
+}
+
+
+// =====================================================
+// CRAFTER GRAPHIC
+// =====================================================
+
+function drawCrafterGraphic(
+    cx,
+    cy,
+    size,
+    powered,
+    time
+) {
+
+    const radius =
+        size *
+        0.17;
+
+
+    const angle =
+        powered
+            ? time *
+              2.2
+            : 0;
+
+
+    rotateCanvasAround(
+
+        cx,
+        cy,
+        angle,
+
+        () => {
+
+            ctx.strokeStyle =
+                powered
+                    ? "#bcc6c0"
+                    : "#6d756f";
+
+
+            ctx.lineWidth =
+                Math.max(
+                    3,
+                    size *
+                    0.055
+                );
+
+
+            ctx.setLineDash([
+
+                size *
+                0.07,
+
+                size *
+                0.05
+
+            ]);
+
+
+            ctx.beginPath();
+
+
+            ctx.arc(
+
+                cx,
+                cy,
+                radius,
+
+                0,
+
+                Math.PI *
+                2
+
+            );
+
+
+            ctx.stroke();
+
+
+            ctx.setLineDash(
+                []
+            );
+
+        }
+
+    );
+
+
+    ctx.fillStyle =
+        "#202722";
+
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+
+        cx,
+        cy,
+
+        size *
+        0.06,
+
+        0,
+
+        Math.PI *
+        2
+
+    );
+
+
+    ctx.fill();
+
+}
+
+
+// =====================================================
+// CHEST GRAPHIC
+// =====================================================
+
+function drawChestGraphic(
+    cx,
+    cy,
+    size
+) {
+
+    const width =
+        size *
+        0.42;
+
+
+    const height =
+        size *
+        0.30;
+
+
+    fillRect(
+
+        cx -
+        width /
+        2,
+
+        cy -
+        height /
+        2,
+
+        width,
+
+        height,
+
+        "#9b6528"
+
+    );
+
+
+    fillRect(
+
+        cx -
+        width /
+        2,
+
+        cy -
+        height *
+        0.08,
+
+        width,
+
+        height *
+        0.12,
+
+        "#5a3513"
+
+    );
+
+
+    strokeRect(
+
+        cx -
+        width /
+        2,
+
+        cy -
+        height /
+        2,
+
+        width,
+
+        height,
+
+        "#c68a3d",
+
+        2
+
+    );
+
+
+    fillRect(
+
+        cx -
+        size *
+        0.035,
+
+        cy -
+        size *
+        0.025,
+
+        size *
+        0.07,
+
+        size *
+        0.09,
+
+        "#cfba77"
+
+    );
+
+}
+
+
+// =====================================================
+// ITEM GRAPHICS
 // =====================================================
 
 function drawItems(
@@ -4900,8 +9850,13 @@ function drawItems(
                 item.resource
             ];
 
-        if (!info) {
+
+        if (
+            !info
+        ) {
+
             continue;
+
         }
 
 
@@ -4912,67 +9867,139 @@ function drawItems(
 
 
         const cx =
+
             (
                 item.x +
                 0.5 +
+
                 vector.x *
                 item.progress
             ) *
+
             cellWidth;
 
 
         const cy =
+
             (
                 item.y +
                 0.5 +
+
                 vector.y *
                 item.progress
             ) *
+
             cellHeight;
 
 
         const size =
             Math.max(
-                5,
+
+                4,
+
                 Math.min(
                     cellWidth,
                     cellHeight
                 ) *
-                0.16
+                0.12
+
             );
 
 
-        ctx.fillStyle =
-            info.color;
+        // Shadow
 
+        fillRect(
 
-        ctx.fillRect(
-            cx - size,
-            cy - size,
-            size * 2,
-            size * 2
+            cx -
+            size +
+            2,
+
+            cy -
+            size +
+            3,
+
+            size *
+            2,
+
+            size *
+            2,
+
+            "rgba(0,0,0,0.28)"
+
         );
 
 
-        ctx.strokeStyle =
-            "rgba(255,255,255,0.7)";
+        // Main resource cube
 
+        fillRect(
 
-        ctx.lineWidth = 1;
+            cx -
+            size,
 
+            cy -
+            size,
 
-        ctx.strokeRect(
-            cx - size,
-            cy - size,
-            size * 2,
-            size * 2
+            size *
+            2,
+
+            size *
+            2,
+
+            info.color
+
         );
+
+
+        // Highlight
+
+        fillRect(
+
+            cx -
+            size +
+            2,
+
+            cy -
+            size +
+            2,
+
+            size *
+            0.75,
+
+            size *
+            0.35,
+
+            info.light
+
+        );
+
+
+        strokeRect(
+
+            cx -
+            size,
+
+            cy -
+            size,
+
+            size *
+            2,
+
+            size *
+            2,
+
+            "rgba(255,255,255,0.50)",
+
+            1
+
+        );
+
     }
+
 }
 
 
 // =====================================================
-// DRAW EFFECTS
+// PARTICLE GRAPHICS
 // =====================================================
 
 function drawParticles(
@@ -4983,7 +10010,9 @@ function drawParticles(
     if (
         !settings.effects
     ) {
+
         return;
+
     }
 
 
@@ -4994,9 +10023,12 @@ function drawParticles(
 
         const alpha =
             Math.max(
+
                 0,
+
                 particle.life /
                 particle.maxLife
+
             );
 
 
@@ -5006,22 +10038,13 @@ function drawParticles(
         ) {
 
             ctx.fillStyle =
-                `rgba(
-                    150,
-                    150,
-                    150,
-                    ${alpha * 0.6}
-                )`;
+                `rgba(130,138,133,${alpha * 0.45})`;
 
         } else {
 
             ctx.fillStyle =
-                `rgba(
-                    255,
-                    210,
-                    75,
-                    ${alpha}
-                )`;
+                `rgba(255,205,76,${alpha})`;
+
         }
 
 
@@ -5029,26 +10052,142 @@ function drawParticles(
 
 
         ctx.arc(
+
             particle.x *
             cellWidth,
+
             particle.y *
             cellHeight,
+
             particle.type ===
             "smoke"
-                ? 5
-                : 2.5,
+                ? 4.5
+                : 2,
+
             0,
-            Math.PI * 2
+
+            Math.PI *
+            2
+
         );
 
 
         ctx.fill();
+
     }
+
 }
 
 
 // =====================================================
-// DAY / NIGHT RENDER
+// PLACEMENT PREVIEW
+// =====================================================
+
+function drawPlacementPreview(
+    cellWidth,
+    cellHeight
+) {
+
+    if (
+        !hoveredCell
+    ) {
+
+        return;
+
+    }
+
+
+    const {
+        x,
+        y
+    } =
+        hoveredCell;
+
+
+    const px =
+        x *
+        cellWidth;
+
+
+    const py =
+        y *
+        cellHeight;
+
+
+    const occupied =
+        !!getCell(
+            x,
+            y
+        );
+
+
+    let fill =
+        "rgba(106,220,117,0.18)";
+
+
+    let border =
+        "rgba(106,220,117,0.78)";
+
+
+    if (
+        selectedTool ===
+        "delete"
+    ) {
+
+        fill =
+            occupied
+                ? "rgba(235,74,74,0.18)"
+                : "rgba(150,70,70,0.10)";
+
+
+        border =
+            occupied
+                ? "rgba(255,91,91,0.85)"
+                : "rgba(180,100,100,0.45)";
+
+    } else if (
+        selectedTool !==
+        "interact" &&
+        occupied
+    ) {
+
+        fill =
+            "rgba(235,74,74,0.15)";
+
+
+        border =
+            "rgba(255,91,91,0.75)";
+
+    }
+
+
+    fillRect(
+
+        px + 2,
+        py + 2,
+        cellWidth - 4,
+        cellHeight - 4,
+        fill
+
+    );
+
+
+    strokeRect(
+
+        px + 2,
+        py + 2,
+        cellWidth - 4,
+        cellHeight - 4,
+        border,
+        2
+
+    );
+
+}
+
+
+// =====================================================
+// NIGHT OVERLAY
 // =====================================================
 
 function drawDayNightOverlay(
@@ -5056,67 +10195,80 @@ function drawDayNightOverlay(
     height
 ) {
 
-    const t =
+    const time =
         state.timeOfDay;
 
 
-    let darkness = 0;
+    let darkness =
+        0;
 
 
     if (
-        t > 0.68
+        time >
+        0.68
     ) {
 
         darkness =
             Math.min(
-                0.47,
+
+                0.42,
+
                 (
-                    t -
+                    time -
                     0.68
                 ) *
-                1.6
+                1.45
+
             );
 
     } else if (
-        t < 0.18
+        time <
+        0.18
     ) {
 
         darkness =
             Math.min(
-                0.47,
+
+                0.42,
+
                 (
                     0.18 -
-                    t
+                    time
                 ) *
-                2.5
+                2.25
+
             );
+
     }
 
 
     if (
-        darkness <= 0
+        darkness <=
+        0
     ) {
+
         return;
+
     }
 
 
-    ctx.fillStyle =
-        `rgba(
-            4,
-            8,
-            25,
-            ${darkness}
-        )`;
+    fillRect(
 
-
-    ctx.fillRect(
         0,
         0,
         width,
-        height
+        height,
+
+        `rgba(3,8,24,${darkness})`
+
     );
+
 }
 
+
+// =====================================================
+// NIGHT MACHINE LIGHTS
+// =====================================================
 
 function drawFactoryLights(
     cellWidth,
@@ -5126,7 +10278,9 @@ function drawFactoryLights(
     if (
         !isNight()
     ) {
+
         return;
+
     }
 
 
@@ -5143,29 +10297,39 @@ function drawFactoryLights(
         ) {
 
             const cell =
-                getCell(x, y);
+                getCell(
+                    x,
+                    y
+                );
 
 
             if (
                 !cell ||
                 !poweredMachines.has(
-                    getIndex(x, y)
+                    getIndex(
+                        x,
+                        y
+                    )
                 )
             ) {
+
                 continue;
+
             }
 
 
             const cx =
                 (
-                    x + 0.5
+                    x +
+                    0.5
                 ) *
                 cellWidth;
 
 
             const cy =
                 (
-                    y + 0.5
+                    y +
+                    0.5
                 ) *
                 cellHeight;
 
@@ -5175,29 +10339,38 @@ function drawFactoryLights(
                     cellWidth,
                     cellHeight
                 ) *
-                1.6;
+                1.45;
 
 
             const gradient =
                 ctx.createRadialGradient(
+
                     cx,
                     cy,
                     2,
+
                     cx,
                     cy,
                     radius
+
                 );
 
 
             gradient.addColorStop(
+
                 0,
-                "rgba(255,230,150,0.17)"
+
+                "rgba(255,226,151,0.12)"
+
             );
 
 
             gradient.addColorStop(
+
                 1,
-                "rgba(255,230,150,0)"
+
+                "rgba(255,226,151,0)"
+
             );
 
 
@@ -5209,22 +10382,30 @@ function drawFactoryLights(
 
 
             ctx.arc(
+
                 cx,
                 cy,
                 radius,
+
                 0,
-                Math.PI * 2
+
+                Math.PI *
+                2
+
             );
 
 
             ctx.fill();
+
         }
+
     }
+
 }
 
 
 // =====================================================
-// WEATHER RENDER
+// WEATHER GRAPHICS
 // =====================================================
 
 function drawWeather(
@@ -5237,7 +10418,9 @@ function drawWeather(
         state.weather ===
         "clear"
     ) {
+
         return;
+
     }
 
 
@@ -5250,6 +10433,7 @@ function drawWeather(
             particle.x *
             width;
 
+
         const y =
             particle.y *
             height;
@@ -5261,7 +10445,7 @@ function drawWeather(
         ) {
 
             ctx.fillStyle =
-                "rgba(255,255,255,0.8)";
+                "rgba(240,248,243,0.72)";
 
 
             ctx.beginPath();
@@ -5270,43 +10454,51 @@ function drawWeather(
             ctx.arc(
                 x,
                 y,
-                2.5,
+                2,
                 0,
-                Math.PI * 2
+                Math.PI *
+                2
             );
 
 
             ctx.fill();
 
-        } else {
 
-            ctx.strokeStyle =
-                particle.type ===
-                "thunder"
-                    ? "rgba(190,210,255,0.8)"
-                    : "rgba(150,190,220,0.65)";
+            continue;
 
-
-            ctx.lineWidth = 1.4;
-
-
-            ctx.beginPath();
-
-
-            ctx.moveTo(
-                x,
-                y
-            );
-
-
-            ctx.lineTo(
-                x - 4,
-                y + 12
-            );
-
-
-            ctx.stroke();
         }
+
+
+        ctx.strokeStyle =
+            particle.type ===
+            "thunder"
+
+                ? "rgba(185,214,234,0.60)"
+
+                : "rgba(132,177,202,0.48)";
+
+
+        ctx.lineWidth =
+            1;
+
+
+        ctx.beginPath();
+
+
+        ctx.moveTo(
+            x,
+            y
+        );
+
+
+        ctx.lineTo(
+            x - 3,
+            y + 10
+        );
+
+
+        ctx.stroke();
+
     }
 
 
@@ -5314,23 +10506,27 @@ function drawWeather(
         state.weather ===
         "thunder" &&
         Math.random() <
-        0.005
+        0.0025
     ) {
 
-        ctx.fillStyle =
-            "rgba(255,255,255,0.35)";
+        fillRect(
 
-
-        ctx.fillRect(
             0,
             0,
             width,
-            height
+            height,
+
+            "rgba(230,240,255,0.23)"
+
         );
 
 
-        playSound("thunder");
+        playSound(
+            "thunder"
+        );
+
     }
+
 }
 
 
@@ -5342,103 +10538,85 @@ function handlePointerMove(
     event
 ) {
 
-    const rect =
-        canvas.getBoundingClientRect();
-
-
-    const x =
-        Math.floor(
-            (
-                event.clientX -
-                rect.left
-            ) /
-            rect.width *
-            GRID_COLUMNS
+    hoveredCell =
+        getCellFromPointer(
+            event
         );
 
-
-    const y =
-        Math.floor(
-            (
-                event.clientY -
-                rect.top
-            ) /
-            rect.height *
-            GRID_ROWS
-        );
-
-
-    if (
-        inBounds(x, y)
-    ) {
-
-        hoveredCell = {
-            x,
-            y
-        };
-
-    } else {
-
-        hoveredCell =
-            null;
-    }
 }
 
 
 // =====================================================
-// SOUND
+// AUDIO
 // =====================================================
 
 function ensureAudio() {
 
-    if (!audioContext) {
+    if (
+        !audioContext
+    ) {
 
-        const AudioContextClass =
+        const AudioClass =
+
             window.AudioContext ||
+
             window.webkitAudioContext;
 
 
         if (
-            AudioContextClass
+            AudioClass
         ) {
 
             audioContext =
-                new AudioContextClass();
+                new AudioClass();
+
         }
+
     }
 
 
     if (
-        audioContext &&
-        audioContext.state ===
+        audioContext?.state ===
         "suspended"
     ) {
 
-        audioContext.resume();
+        audioContext
+            .resume()
+            .catch(
+                () => {}
+            );
+
     }
+
 }
 
 
 function playTone(
     frequency,
     duration,
-    volume = 0.04,
-    type = "square"
+    volume =
+        0.04,
+    type =
+        "square"
 ) {
 
     if (
         !audioContext
     ) {
+
         return;
+
     }
 
 
     const oscillator =
-        audioContext.createOscillator();
+        audioContext
+            .createOscillator();
 
 
     const gain =
-        audioContext.createGain();
+        audioContext
+            .createGain();
 
 
     oscillator.type =
@@ -5450,16 +10628,23 @@ function playTone(
 
 
     gain.gain.setValueAtTime(
+
         volume,
+
         audioContext.currentTime
+
     );
 
 
-    gain.gain.exponentialRampToValueAtTime(
-        0.001,
-        audioContext.currentTime +
-        duration
-    );
+    gain.gain
+        .exponentialRampToValueAtTime(
+
+            0.001,
+
+            audioContext.currentTime +
+            duration
+
+        );
 
 
     oscillator.connect(
@@ -5476,59 +10661,171 @@ function playTone(
 
 
     oscillator.stop(
+
         audioContext.currentTime +
         duration
+
     );
+
 }
 
 
-function playSound(type) {
+function playSound(
+    type
+) {
 
     if (
         settings.muted ||
         !settings.sound
     ) {
+
         return;
+
     }
 
 
     ensureAudio();
 
 
-    if (type === "place") {
-        playTone(130, 0.07, 0.025);
+    const sounds = {
+
+        place:
+            [
+                130,
+                0.07,
+                0.025,
+                "square"
+            ],
+
+        delete:
+            [
+                90,
+                0.09,
+                0.035,
+                "square"
+            ],
+
+        machine:
+            [
+                100,
+                0.08,
+                0.018,
+                "sawtooth"
+            ],
+
+        conveyor:
+            [
+                70,
+                0.05,
+                0.007,
+                "square"
+            ],
+
+        switch:
+            [
+                180,
+                0.06,
+                0.03,
+                "square"
+            ],
+
+        storage:
+            [
+                250,
+                0.04,
+                0.014,
+                "square"
+            ],
+
+        save:
+            [
+                500,
+                0.08,
+                0.025,
+                "square"
+            ],
+
+        click:
+            [
+                200,
+                0.04,
+                0.014,
+                "square"
+            ],
+
+        error:
+            [
+                80,
+                0.16,
+                0.04,
+                "square"
+            ],
+
+        thunder:
+            [
+                45,
+                0.30,
+                0.025,
+                "sawtooth"
+            ]
+
+    };
+
+
+    if (
+        sounds[
+            type
+        ]
+    ) {
+
+        playTone(
+            ...sounds[
+                type
+            ]
+        );
+
+
+        return;
+
     }
 
-    if (type === "delete") {
-        playTone(90, 0.09, 0.035);
-    }
 
-    if (type === "machine") {
-        playTone(100, 0.08, 0.018, "sawtooth");
-    }
+    if (
+        type ===
+        "craft"
+    ) {
 
-    if (type === "conveyor") {
-        playTone(70, 0.05, 0.008, "square");
-    }
+        playTone(
+            420,
+            0.07,
+            0.032
+        );
 
-    if (type === "craft") {
-
-        playTone(420, 0.07, 0.035);
 
         setTimeout(
             () =>
                 playTone(
                     650,
                     0.10,
-                    0.035
+                    0.032
                 ),
             75
         );
+
     }
 
-    if (type === "sell") {
 
-        playTone(520, 0.08, 0.04);
+    if (
+        type ===
+        "sell"
+    ) {
+
+        playTone(
+            520,
+            0.08,
+            0.04
+        );
+
 
         setTimeout(
             () =>
@@ -5539,11 +10836,21 @@ function playSound(type) {
                 ),
             90
         );
+
     }
 
-    if (type === "upgrade") {
 
-        playTone(350, 0.07, 0.035);
+    if (
+        type ===
+        "upgrade"
+    ) {
+
+        playTone(
+            350,
+            0.07,
+            0.035
+        );
+
 
         setTimeout(
             () =>
@@ -5555,6 +10862,7 @@ function playSound(type) {
             80
         );
 
+
         setTimeout(
             () =>
                 playTone(
@@ -5564,35 +10872,21 @@ function playSound(type) {
                 ),
             170
         );
+
     }
 
-    if (type === "switch") {
-        playTone(180, 0.06, 0.03);
-    }
 
-    if (type === "storage") {
-        playTone(250, 0.04, 0.015);
-    }
+    if (
+        type ===
+        "win"
+    ) {
 
-    if (type === "save") {
-        playTone(500, 0.08, 0.025);
-    }
+        playTone(
+            400,
+            0.10,
+            0.04
+        );
 
-    if (type === "click") {
-        playTone(200, 0.04, 0.015);
-    }
-
-    if (type === "error") {
-        playTone(80, 0.16, 0.04);
-    }
-
-    if (type === "thunder") {
-        playTone(45, 0.35, 0.04, "sawtooth");
-    }
-
-    if (type === "win") {
-
-        playTone(400, 0.1, 0.04);
 
         setTimeout(
             () =>
@@ -5604,16 +10898,19 @@ function playSound(type) {
             120
         );
 
+
         setTimeout(
             () =>
                 playTone(
                     850,
-                    0.2,
+                    0.20,
                     0.05
                 ),
             260
         );
+
     }
+
 }
 
 
@@ -5626,6 +10923,15 @@ function startMusic() {
     stopMusic();
 
 
+    if (
+        !settings.music
+    ) {
+
+        return;
+
+    }
+
+
     musicInterval =
         setInterval(
             () => {
@@ -5635,7 +10941,9 @@ function startMusic() {
                     settings.muted ||
                     !settings.music
                 ) {
+
                     return;
+
                 }
 
 
@@ -5643,10 +10951,12 @@ function startMusic() {
 
 
                 const notes = [
+
                     110,
                     130.81,
                     146.83,
                     164.81
+
                 ];
 
 
@@ -5660,15 +10970,21 @@ function startMusic() {
 
 
                 playTone(
+
                     note,
+
                     1.2,
-                    0.008,
+
+                    0.007,
+
                     "sine"
+
                 );
 
             },
             5500
         );
+
 }
 
 
@@ -5682,9 +10998,12 @@ function stopMusic() {
             musicInterval
         );
 
+
         musicInterval =
             null;
+
     }
+
 }
 
 
@@ -5692,16 +11011,27 @@ function stopMusic() {
 // GAME LOOP
 // =====================================================
 
-function gameLoop(time) {
+function gameLoop(
+    time
+) {
 
     const dt =
         Math.min(
+
             0.05,
-            (
-                time -
-                lastFrameTime
-            ) /
-            1000
+
+            Math.max(
+
+                0,
+
+                (
+                    time -
+                    lastFrameTime
+                ) /
+                1000
+
+            )
+
         );
 
 
@@ -5714,18 +11044,25 @@ function gameLoop(time) {
         state
     ) {
 
-        if (!paused) {
+        if (
+            !paused
+        ) {
 
             state.statistics
                 .playTime +=
                 dt;
 
 
-            powerTimer += dt;
+            powerTimer +=
+                dt;
 
-            hudTimer += dt;
 
-            autoSaveTimer += dt;
+            hudTimer +=
+                dt;
+
+
+            autoSaveTimer +=
+                dt;
 
 
             if (
@@ -5733,23 +11070,43 @@ function gameLoop(time) {
                 0.25
             ) {
 
-                powerTimer = 0;
+                powerTimer =
+                    0;
+
 
                 computePowerNetwork();
+
             }
 
 
-            updateMachines(dt);
+            updateMachines(
+                dt
+            );
 
-            updateItems(dt);
 
-            updateParticles(dt);
+            updateItems(
+                dt
+            );
 
-            updateDayNight(dt);
 
-            updateWeather(dt);
+            updateParticles(
+                dt
+            );
 
-            updateChallenge(dt);
+
+            updateDayNight(
+                dt
+            );
+
+
+            updateWeather(
+                dt
+            );
+
+
+            updateChallenge(
+                dt
+            );
 
 
             if (
@@ -5757,9 +11114,12 @@ function gameLoop(time) {
                 0.5
             ) {
 
-                hudTimer = 0;
+                hudTimer =
+                    0;
+
 
                 updateHUD();
+
             }
 
 
@@ -5768,20 +11128,26 @@ function gameLoop(time) {
                 8
             ) {
 
-                autoSaveTimer = 0;
+                autoSaveTimer =
+                    0;
+
 
                 saveGame();
+
             }
+
         }
 
 
         renderFactory();
+
     }
 
 
     requestAnimationFrame(
         gameLoop
     );
+
 }
 
 
@@ -5789,11 +11155,17 @@ function gameLoop(time) {
 // FORMATTERS
 // =====================================================
 
-function formatNumber(number) {
+function formatNumber(
+    number
+) {
 
-    return Number(
-        number
+    return Math.floor(
+        Number(
+            number
+        ) ||
+        0
     ).toLocaleString();
+
 }
 
 
@@ -5803,10 +11175,16 @@ function formatPlayTime(
 
     seconds =
         Math.max(
+
             0,
+
             Math.floor(
-                seconds
+                Number(
+                    seconds
+                ) ||
+                0
             )
+
         );
 
 
@@ -5819,11 +11197,13 @@ function formatPlayTime(
 
     const minutes =
         Math.floor(
+
             (
                 seconds %
                 3600
             ) /
             60
+
         );
 
 
@@ -5833,29 +11213,62 @@ function formatPlayTime(
 
 
     if (
-        hours > 0
+        hours >
+        0
     ) {
 
         return (
-            String(hours)
-                .padStart(2, "0") +
+
+            String(
+                hours
+            ).padStart(
+                2,
+                "0"
+            ) +
+
             ":" +
-            String(minutes)
-                .padStart(2, "0") +
+
+            String(
+                minutes
+            ).padStart(
+                2,
+                "0"
+            ) +
+
             ":" +
-            String(remainingSeconds)
-                .padStart(2, "0")
+
+            String(
+                remainingSeconds
+            ).padStart(
+                2,
+                "0"
+            )
+
         );
+
     }
 
 
     return (
-        String(minutes)
-            .padStart(2, "0") +
+
+        String(
+            minutes
+        ).padStart(
+            2,
+            "0"
+        ) +
+
         ":" +
-        String(remainingSeconds)
-            .padStart(2, "0")
+
+        String(
+            remainingSeconds
+        ).padStart(
+            2,
+            "0"
+        )
+
     );
+
 }
 
 
@@ -5865,10 +11278,16 @@ function formatCountdown(
 
     seconds =
         Math.max(
+
             0,
+
             Math.ceil(
-                seconds
+                Number(
+                    seconds
+                ) ||
+                0
             )
+
         );
 
 
@@ -5885,17 +11304,30 @@ function formatCountdown(
 
 
     return (
-        String(minutes)
-            .padStart(2, "0") +
+
+        String(
+            minutes
+        ).padStart(
+            2,
+            "0"
+        ) +
+
         ":" +
-        String(remaining)
-            .padStart(2, "0")
+
+        String(
+            remaining
+        ).padStart(
+            2,
+            "0"
+        )
+
     );
+
 }
 
 
 // =====================================================
-// SETTINGS EVENTS
+// SETTINGS CONTROLS
 // =====================================================
 
 function toggleSound() {
@@ -5903,11 +11335,15 @@ function toggleSound() {
     settings.sound =
         !settings.sound;
 
+
     saveSettings();
+
 
     updateSettingsUI();
 
+
     ensureAudio();
+
 }
 
 
@@ -5916,15 +11352,25 @@ function toggleMusic() {
     settings.music =
         !settings.music;
 
+
     saveSettings();
 
+
     updateSettingsUI();
+
 
     if (
         settings.music
     ) {
+
         startMusic();
+
+    } else {
+
+        stopMusic();
+
     }
+
 }
 
 
@@ -5933,9 +11379,26 @@ function toggleEffects() {
     settings.effects =
         !settings.effects;
 
+
     saveSettings();
 
+
     updateSettingsUI();
+
+
+    if (
+        !settings.effects
+    ) {
+
+        particles =
+            [];
+
+
+        weatherParticles =
+            [];
+
+    }
+
 }
 
 
@@ -5944,17 +11407,26 @@ function toggleMute() {
     settings.muted =
         !settings.muted;
 
+
     saveSettings();
 
+
     updateSettingsUI();
+
 
     if (
         !settings.muted
     ) {
 
         ensureAudio();
-        playSound("click");
+
+
+        playSound(
+            "click"
+        );
+
     }
+
 }
 
 
@@ -5962,12 +11434,11 @@ function toggleMute() {
 // EVENT LISTENERS
 // =====================================================
 
-// Main menu
+// Main Menu
 
 playBtn.addEventListener(
     "click",
-    () =>
-        startNewFactory(false)
+    startNewFactory
 );
 
 
@@ -5979,8 +11450,7 @@ continueBtn.addEventListener(
 
 challengeBtn.addEventListener(
     "click",
-    () =>
-        startNewFactory(true)
+    startChallenge
 );
 
 
@@ -5999,18 +11469,22 @@ settingsBtn.addEventListener(
 );
 
 
-// Build tools
+// Factory Tools
 
 toolButtons.forEach(
     button => {
 
         button.addEventListener(
             "click",
-            () =>
+            () => {
+
                 selectTool(
                     button.dataset.tool
-                )
+                );
+
+            }
         );
+
     }
 );
 
@@ -6038,7 +11512,10 @@ canvas.addEventListener(
 canvas.addEventListener(
     "pointerleave",
     () => {
-        hoveredCell = null;
+
+        hoveredCell =
+            null;
+
     }
 );
 
@@ -6050,7 +11527,7 @@ canvas.addEventListener(
 );
 
 
-// Factory controls
+// Inventory
 
 inventoryBtn.addEventListener(
     "click",
@@ -6058,24 +11535,67 @@ inventoryBtn.addEventListener(
 );
 
 
+inventorySellAllBtn.addEventListener(
+    "click",
+    sellAllInventoryProducts
+);
+
+
+closeInventoryBtn.addEventListener(
+    "click",
+    () =>
+        closePanel(
+            inventoryPanel
+        )
+);
+
+
+// Upgrades
+
 upgradesBtn.addEventListener(
     "click",
     () => {
 
         updateUpgradesUI();
 
+
         openPanel(
             upgradesPanel
         );
+
     }
 );
 
 
-sellBtn.addEventListener(
+closeUpgradesBtn.addEventListener(
     "click",
-    sellProducts
+    () =>
+        closePanel(
+            upgradesPanel
+        )
 );
 
+
+upgradeButtons.forEach(
+    button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                buyUpgrade(
+                    button.dataset
+                        .upgrade
+                );
+
+            }
+        );
+
+    }
+);
+
+
+// Statistics
 
 statisticsGameBtn.addEventListener(
     "click",
@@ -6083,12 +11603,27 @@ statisticsGameBtn.addEventListener(
 );
 
 
+closeStatisticsBtn.addEventListener(
+    "click",
+    () =>
+        closePanel(
+            statisticsPanel
+        )
+);
+
+
+// Save
+
 saveBtn.addEventListener(
     "click",
     () =>
-        saveGame(true)
+        saveGame(
+            true
+        )
 );
 
+
+// Help
 
 helpBtn.addEventListener(
     "click",
@@ -6099,34 +11634,25 @@ helpBtn.addEventListener(
 );
 
 
-gameMenuBtn.addEventListener(
+closeHelpBtn.addEventListener(
     "click",
-    () => {
-
-        const leave =
-            confirm(
-                "Save your factory and return to the main menu?"
-            );
-
-        if (leave) {
-
-            saveGame();
-
-            returnToMainMenu();
-        }
-    }
-);
-
-
-// Mute
-
-muteBtn.addEventListener(
-    "click",
-    toggleMute
+    () =>
+        closePanel(
+            helpPanel
+        )
 );
 
 
 // Settings
+
+closeSettingsBtn.addEventListener(
+    "click",
+    () =>
+        closePanel(
+            settingsPanel
+        )
+);
+
 
 soundToggleBtn.addEventListener(
     "click",
@@ -6146,89 +11672,111 @@ effectsToggleBtn.addEventListener(
 );
 
 
-closeSettingsBtn.addEventListener(
+muteBtn.addEventListener(
+    "click",
+    toggleMute
+);
+
+
+// Confirmation
+
+confirmCancelBtn.addEventListener(
     "click",
     () =>
-        closePanel(
-            settingsPanel
+        closeConfirmation(
+            false
         )
 );
 
 
-// Statistics
-
-closeStatisticsBtn.addEventListener(
+confirmActionBtn.addEventListener(
     "click",
     () =>
-        closePanel(
-            statisticsPanel
+        closeConfirmation(
+            true
         )
 );
 
 
-// Inventory
-
-closeInventoryBtn.addEventListener(
+confirmPanel.addEventListener(
     "click",
-    () =>
-        closePanel(
-            inventoryPanel
-        )
-);
+    event => {
 
+        if (
+            event.target ===
+            confirmPanel
+        ) {
 
-// Upgrades
+            closeConfirmation(
+                false
+            );
 
-closeUpgradesBtn.addEventListener(
-    "click",
-    () =>
-        closePanel(
-            upgradesPanel
-        )
-);
+        }
 
-
-upgradeButtons.forEach(
-    button => {
-
-        button.addEventListener(
-            "click",
-            () =>
-                buyUpgrade(
-                    button.dataset.upgrade
-                )
-        );
     }
 );
 
 
-// Help
-
-closeHelpBtn.addEventListener(
-    "click",
-    () =>
-        closePanel(
-            helpPanel
-        )
-);
-
-
-// Challenge result
+// Challenge Result
 
 challengeResultBtn.addEventListener(
     "click",
-    () => {
+    returnToMainMenu
+);
 
-        closePanel(
-            challengeResultPanel
-        );
 
-        returnToMainMenu();
+// Main Menu Button While Playing
+
+gameMenuBtn.addEventListener(
+    "click",
+    async () => {
+
+        if (
+            !state
+        ) {
+
+            return;
+
+        }
+
+
+        const challenge =
+            state.challenge.active;
+
+
+        const leave =
+            await showConfirmation(
+
+                challenge
+                    ? "Leave Challenge?"
+                    : "Return To Main Menu?",
+
+                challenge
+
+                    ? "Your challenge run will end. Your normal saved factory will remain safe."
+
+                    : "Your factory will be saved before returning to the main menu.",
+
+                challenge
+                    ? "Leave Challenge"
+                    : "Save & Exit"
+
+            );
+
+
+        if (
+            leave
+        ) {
+
+            returnToMainMenu();
+
+        }
+
     }
 );
 
 
-// Close modal by clicking background
+// Click Outside Standard Panels
 
 [
     settingsPanel,
@@ -6251,14 +11799,17 @@ challengeResultBtn.addEventListener(
                     closePanel(
                         panel
                     );
+
                 }
+
             }
         );
+
     }
 );
 
 
-// Escape key
+// Keyboard Controls
 
 document.addEventListener(
     "keydown",
@@ -6269,23 +11820,48 @@ document.addEventListener(
             "Escape"
         ) {
 
+            if (
+                confirmPanel.classList.contains(
+                    "open"
+                )
+            ) {
+
+                closeConfirmation(
+                    false
+                );
+
+
+                return;
+
+            }
+
+
             closeAllPanels();
+
         }
 
 
         if (
-            event.key.toLowerCase() ===
-            "r" &&
-            gameRunning
+            event.key
+                .toLowerCase() ===
+                "r" &&
+
+            gameRunning &&
+
+            !paused &&
+
+            !event.repeat
         ) {
 
             rotateDirection();
+
         }
+
     }
 );
 
 
-// Resize
+// Window Resize
 
 window.addEventListener(
     "resize",
@@ -6296,12 +11872,14 @@ window.addEventListener(
         ) {
 
             resizeCanvas();
+
         }
+
     }
 );
 
 
-// Save before leaving
+// Save Before Browser Closes
 
 window.addEventListener(
     "beforeunload",
@@ -6309,11 +11887,35 @@ window.addEventListener(
 
         if (
             state &&
-            gameRunning
+            gameRunning &&
+            !state.challenge.active
         ) {
 
             saveGame();
+
         }
+
+    }
+);
+
+
+// Save When Tab Is Hidden
+
+document.addEventListener(
+    "visibilitychange",
+    () => {
+
+        if (
+            document.hidden &&
+            state &&
+            gameRunning &&
+            !state.challenge.active
+        ) {
+
+            saveGame();
+
+        }
+
     }
 );
 
@@ -6326,9 +11928,12 @@ function initialize() {
 
     loadSettings();
 
+
     updateContinueButton();
 
+
     updateToolUI();
+
 
     requestAnimationFrame(
         gameLoop
@@ -6336,8 +11941,9 @@ function initialize() {
 
 
     console.log(
-        "Minecraft Redstone Factory loaded successfully."
+        "Minecraft Redstone Factory V4.1 loaded successfully."
     );
+
 }
 
 
